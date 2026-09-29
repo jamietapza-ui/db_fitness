@@ -1,4 +1,4 @@
--- Active: 1790434080501@@127.0.0.1@3306@project69
+-- Active: 1790433592999@@127.0.0.1@3306@project69
 -- ============================================================
 --  schema.sql — ระบบฟิตเนส (นิสิตออกแบบและเขียนเอง)
 --  กติกา: การจอง = M:N (member × gym_class), อุปกรณ์ต่อคลาส = M:N (gym_class × equipment),
@@ -28,11 +28,12 @@ CREATE TABLE gym_class (          -- 1:M จาก trainer
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id)
 );
 CREATE TABLE booking (            -- M:N: member × gym_class
+    -- TODO: member_id (FK), class_id (FK), book_date, status ENUM('booked','cancelled')
     booking_id  INT AUTO_INCREMENT PRIMARY KEY,
     member_id   INT NOT NULL,
     class_id    INT NOT NULL,
     book_date   DATE NOT NULL,
-    status      VARCHAR(20) NOT NULL,
+    status      ENUM('booked', 'cancelled') NOT NULL,
     FOREIGN KEY (member_id) REFERENCES member(member_id),
     FOREIGN KEY (class_id) REFERENCES gym_class(class_id)
 );
@@ -76,16 +77,16 @@ INSERT INTO gym_class (trainer_id, name, room, capacity, schedule_time) VALUES
 (3, 'Weight Lifting Basics', 'Room C', 10, '2025-09-02 18:00:00');
 
 INSERT INTO booking (member_id, class_id, book_date, status) VALUES
-(1, 1, '2025-08-30', 'Confirmed'),
-(2, 2, '2025-08-30', 'Confirmed'),
-(3, 3, '2025-08-30', 'Cancelled'),
-(4, 4, '2025-08-31', 'Confirmed'),
-(5, 1, '2025-08-31', 'Confirmed'),
-(6, 5, '2025-09-01', 'Pending'),
-(7, 6, '2025-09-01', 'Confirmed'),
-(8, 2, '2025-09-01', 'Confirmed'),
-(1, 5, '2025-09-02', 'Confirmed'),
-(2, 6, '2025-09-02', 'Pending');
+(1, 1, '2025-08-30', 'booked'),
+(2, 2, '2025-08-30', 'booked'),
+(3, 3, '2025-08-30', 'cancelled'),
+(4, 4, '2025-08-31', 'cancelled'),
+(5, 1, '2025-08-31', 'booked'),
+(6, 5, '2025-09-01', 'booked'),
+(7, 6, '2025-09-01', 'cancelled'),
+(8, 2, '2025-09-01', 'booked'),
+(1, 5, '2025-09-02', 'booked'),
+(2, 6, '2025-09-02', 'booked');
 
 INSERT INTO equipment (name, zone, status) VALUES
 ('Treadmill',        'Cardio Zone',  'Available'),
@@ -110,3 +111,9 @@ INSERT INTO class_equipment (class_id, equip_id, quantity) VALUES
 (6, 3, 10);
 
 
+drop table if exists member;
+drop table if exists trainer;
+drop table if exists gym_class;
+drop table if exists booking;
+drop table if exists equipment;
+drop table if exists class_equipment;
