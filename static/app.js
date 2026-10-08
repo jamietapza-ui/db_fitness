@@ -30,7 +30,8 @@ const ENTITIES = {
         "options": [
           "",
           "basic",
-          "premium"
+          "premium",
+          "VIP"
         ]
       }
     ],
@@ -60,7 +61,8 @@ const ENTITIES = {
         "type": "select",
         "options": [
           "basic",
-          "premium"
+          "premium",
+          "VIP"
         ]
       }
     ]
@@ -159,6 +161,58 @@ const ENTITIES = {
           "booked",
           "cancelled"
         ]
+      }
+    ]
+  },
+  "trainers": {
+    "label": "เทรนเนอร์",
+    "api": "/api/trainers",
+    "idKey": "trainer_id",
+    "search": [
+      {
+        "key": "name",
+        "label": "ชื่อเทรนเนอร์",
+        "type": "text"
+      },
+      {
+        "key": "specialty",
+        "label": "ความเชี่ยวชาญ",
+        "type": "select",
+        "options": [
+          "",
+          "Zumba",
+          "Cardio",
+          "Yoga",
+          "Weight Training"
+        ]
+      },
+      {
+        "key": "phone",
+        "label": "เบอร์โทร",
+        "type": "text"
+      }
+    ],
+    "form": [
+      {
+        "key": "name",
+        "label": "ชื่อเทรนเนอร์",
+        "type": "text"
+      },
+      {
+        "key": "specialty",
+        "label": "ความเชี่ยวชาญ",
+        "type": "select",
+        "options": [
+          "Zumba",
+          "Cardio",
+          "Yoga",
+          "Weight Training"
+        ]
+      },
+      {
+        "key": "phone",
+        "label": "เบอร์โทร",
+        "type": "text"
       }
     ]
   }

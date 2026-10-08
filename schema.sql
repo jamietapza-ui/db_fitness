@@ -15,7 +15,7 @@ CREATE TABLE trainer (
     trainer_id   INT AUTO_INCREMENT PRIMARY KEY,
     name         VARCHAR(100) NOT NULL,
     specialty    VARCHAR(100) NOT NULL,
-    phone        VARCHAR(15) NOT NULL
+    phone        VARCHAR(10) NOT NULL
 
 );
 CREATE TABLE gym_class (          -- 1:M จาก trainer
@@ -28,7 +28,6 @@ CREATE TABLE gym_class (          -- 1:M จาก trainer
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id)
 );
 CREATE TABLE booking (            -- M:N: member × gym_class
-    -- TODO: member_id (FK), class_id (FK), book_date, status ENUM('booked','cancelled')
     booking_id  INT AUTO_INCREMENT PRIMARY KEY,
     member_id   INT NOT NULL,
     class_id    INT NOT NULL,
