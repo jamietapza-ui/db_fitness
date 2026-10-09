@@ -115,7 +115,6 @@ def get_class(class_id):
 
 
 def create_class(data):
-    trainer_id = find_trainer_id(data.get("trainer_name"))
     sql = """INSERT INTO gym_class (name, trainer_id, room, capacity, start_date)
              VALUES (%s, %s, %s, %s, %s)"""
     return run_command(sql, (data["name"], trainer_id, data["room"],
@@ -123,7 +122,6 @@ def create_class(data):
 
 
 def update_class(class_id, data):
-    trainer_id = find_trainer_id(data.get("trainer_name"))
     sql = """UPDATE gym_class
              SET name=%s, trainer_id=%s, room=%s, capacity=%s, start_date=%s
              WHERE class_id=%s"""
@@ -182,8 +180,6 @@ def create_booking(data):
     """เพิ่ม การจอง ใหม่ — data มีคีย์: member_id, class_id, book_date, status"""
     # TODO: INSERT INTO booking (...) VALUES (%s, ...)
     # _todo("create_booking")
-    class_id = find_Class_id(data.get("class_name"))
-    member_id = find_member_id(data.get("member_name"))
     sql = "INSERT INTO booking (member_id, class_id, book_date, status) VALUES (%s, %s, %s, %s)"
     return run_command(sql, (member_id, class_id, data["book_date"], data["status"]))
 
@@ -192,8 +188,6 @@ def update_booking(booking_id, data):
     """แก้ไข การจอง ตาม booking_id"""
     # TODO: UPDATE booking SET ... WHERE booking_id=%s
     # _todo("update_booking")
-    class_id = find_Class_id(data.get("class_name"))
-    member_id = find_member_id(data.get("member_name"))
     sql = "UPDATE booking SET member_id=%s, class_id=%s, book_date=%s, status=%s WHERE booking_id=%s"
     return run_command(sql, (member_id, class_id, data["book_date"], data["status"], booking_id))
 
