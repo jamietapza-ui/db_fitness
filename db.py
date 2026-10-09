@@ -84,71 +84,109 @@ def delete_member(member_id):
     return run_command(sql, (member_id,))
 
 # ---------- คลาสเรียน (gym_class) ----------
+def find_trainer_id(trainer_name):
+    """หา trainer_id จากชื่อเทรนเนอร์"""
+    if not trainer_name:
+        return None
+    rows = run_query("SELECT trainer_id FROM trainer WHERE name = %s LIMIT 1",
+                     (trainer_name,))
+    return rows[0]["trainer_id"] if rows else None
+
 def search_classes(filters):
-    """ค้นหา คลาสเรียน ตามเงื่อนไข (name, room)
-    คำใบ้: เริ่มจาก sql = "SELECT * FROM gym_class WHERE 1=1"
-    แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    # _todo("search_classes")
-    sql = "SELECT * FROM gym_class WHERE 1=1"
+    sql = """SELECT c.class_id,
+                    c.name,
+                    c.room,
+                    t.name AS trainer_name,
+                    c.capacity,
+                    c.start_date,
+                    c.end_date
+             FROM gym_class c
+             LEFT JOIN trainer t ON c.trainer_id = t.trainer_id
+             WHERE 1=1"""
     params = []
     if filters.get("name"):
-        sql += " AND name LIKE %s"
+        sql += " AND c.name LIKE %s"
         params.append(f"%{filters['name']}%")
     if filters.get("room"):
-        sql += " AND room = %s"
-        params.append(filters["room"])
+        sql += " AND c.room LIKE %s"
+        params.append(f"%{filters['room']}%")
+    if filters.get("trainer_name"):
+        sql += " AND t.name LIKE %s"
+        params.append(f"%{filters['trainer_name']}%")
+    sql += " ORDER BY c.class_id"
     return run_query(sql, tuple(params))
 
 
 def get_class(class_id):
-    """ดึง คลาสเรียน 1 รายการตาม class_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
-    # TODO: SELECT * FROM gym_class WHERE class_id = %s แล้วคืนแถวเดียว
-    # _todo("get_class")
-    sql = "SELECT * FROM gym_class WHERE class_id = %s"
-    return run_query(sql, (class_id,))[0] if run_query(sql, (class_id,)) else None
+    sql = """SELECT c.*, t.name AS trainer_name
+             FROM gym_class c
+             LEFT JOIN trainer t ON c.trainer_id = t.trainer_id
+             WHERE c.class_id = %s"""
+    rows = run_query(sql, (class_id,))
+    return rows[0] if rows else None
 
 
 def create_class(data):
-    """เพิ่ม คลาสเรียน ใหม่ — data มีคีย์: name, trainer_id, room, capacity, schedule_time"""
-    # TODO: INSERT INTO gym_class (...) VALUES (%s, ...)
-    # _todo("create_class")
-    sql = "INSERT INTO gym_class (name, trainer_id, room, capacity, schedule_time) VALUES (%s, %s, %s, %s, %s)"
-    return run_command(sql, (data["name"], data["trainer_id"], data["room"], data["capacity"], data["schedule_time"]))
+    trainer_id = find_trainer_id(data.get("trainer_name"))
+    sql = """INSERT INTO gym_class (name, trainer_id, room, capacity, start_date)
+             VALUES (%s, %s, %s, %s, %s)"""
+    return run_command(sql, (data["name"], trainer_id, data["room"],
+                             data["capacity"], data["start_date"]))
 
 
 def update_class(class_id, data):
-    """แก้ไข คลาสเรียน ตาม class_id"""
-    # TODO: UPDATE gym_class SET ... WHERE class_id=%s
-    # _todo("update_class")
-    sql = "UPDATE gym_class SET name=%s, trainer_id=%s, room=%s, capacity=%s, schedule_time=%s WHERE class_id=%s"
-    return run_command(sql, (data["name"], data["trainer_id"], data["room"], data["capacity"], data["schedule_time"], class_id))
+    trainer_id = find_trainer_id(data.get("trainer_name"))
+    sql = """UPDATE gym_class
+             SET name=%s, trainer_id=%s, room=%s, capacity=%s, start_date=%s
+             WHERE class_id=%s"""
+    return run_command(sql, (data["name"], trainer_id, data["room"],
+                             data["capacity"], data["start_date"], class_id))
 
 
 def delete_class(class_id):
-    """ลบ คลาสเรียน ตาม class_id"""
-    # TODO: DELETE FROM gym_class WHERE class_id=%s
-    # _todo("delete_class")
-    sql = "DELETE FROM gym_class WHERE class_id = %s"
-    return run_command(sql, (class_id,))
+    return run_command("DELETE FROM gym_class WHERE class_id = %s", (class_id,))
 
 # ---------- การจอง (booking) ----------
+def find_Class_id(class_name):
+    """หา class_id จากชื่อคลาส"""
+    if not class_name:
+        return None
+    rows = run_query("SELECT class_id FROM gym_class WHERE name = %s LIMIT 1",
+                     (class_name,))
+    return rows[0]["class_id"] if rows else None
+
+def find_member_id(member_name):
+    """หา member_id จากชื่อสมาชิก"""
+    if not member_name:
+        return None
+    rows = run_query("SELECT member_id FROM member WHERE name = %s LIMIT 1",
+                     (member_name,))
+    return rows[0]["member_id"] if rows else None
+
 def search_bookings(filters):
     """ค้นหา การจอง ตามเงื่อนไข (member_id, class_id, status)
     คำใบ้: เริ่มจาก sql = "SELECT * FROM booking WHERE 1=1"
     แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
     # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
     # _todo("search_bookings")
-    sql = "SELECT * FROM booking WHERE 1=1"
+    sql = """SELECT b.booking_id, 
+                    m.name AS member_name, 
+                    c.name AS class_name, 
+                    b.book_date, 
+                    b.status 
+                    FROM booking b 
+                    LEFT JOIN member m ON b.member_id = m.member_id 
+                    LEFT JOIN gym_class c ON b.class_id = c.class_id 
+                    WHERE 1=1"""
     params = []
-    if filters.get("member_id"):
-        sql += " AND member_id = %s"
-        params.append(filters["member_id"])
-    if filters.get("class_id"):
-        sql += " AND class_id = %s"
-        params.append(filters["class_id"])
+    if filters.get("member_name"):
+        sql += " AND m.name LIKE %s"
+        params.append(f"%{filters['member_name']}%")
+    if filters.get("class_name"):
+        sql += " AND c.name LIKE %s"
+        params.append(f"%{filters['class_name']}%")
     if filters.get("status"):
-        sql += " AND status = %s"
+        sql += " AND b.status = %s"
         params.append(filters["status"])
     return run_query(sql, tuple(params))
 
@@ -157,7 +195,13 @@ def get_booking(booking_id):
     """ดึง การจอง 1 รายการตาม booking_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
     # TODO: SELECT * FROM booking WHERE booking_id = %s แล้วคืนแถวเดียว
     # _todo("get_booking")
-    sql = "SELECT * FROM booking WHERE booking_id = %s"
+    sql = """SELECT b.*, 
+                    m.name AS member_name, 
+                    c.name AS class_name 
+                    FROM booking b 
+                    LEFT JOIN member m ON b.member_id = m.member_id 
+                    LEFT JOIN gym_class c ON b.class_id = c.class_id 
+                    WHERE b.booking_id = %s"""
     return run_query(sql, (booking_id,))[0] if run_query(sql, (booking_id,)) else None
 
 
@@ -165,16 +209,20 @@ def create_booking(data):
     """เพิ่ม การจอง ใหม่ — data มีคีย์: member_id, class_id, book_date, status"""
     # TODO: INSERT INTO booking (...) VALUES (%s, ...)
     # _todo("create_booking")
+    class_id = find_Class_id(data.get("class_name"))
+    member_id = find_member_id(data.get("member_name"))
     sql = "INSERT INTO booking (member_id, class_id, book_date, status) VALUES (%s, %s, %s, %s)"
-    return run_command(sql, (data["member_id"], data["class_id"], data["book_date"], data["status"]))
+    return run_command(sql, (member_id, class_id, data["book_date"], data["status"]))
 
 
 def update_booking(booking_id, data):
     """แก้ไข การจอง ตาม booking_id"""
     # TODO: UPDATE booking SET ... WHERE booking_id=%s
     # _todo("update_booking")
+    class_id = find_Class_id(data.get("class_name"))
+    member_id = find_member_id(data.get("member_name"))
     sql = "UPDATE booking SET member_id=%s, class_id=%s, book_date=%s, status=%s WHERE booking_id=%s"
-    return run_command(sql, (data["member_id"], data["class_id"], data["book_date"], data["status"], booking_id))
+    return run_command(sql, (member_id, class_id, data["book_date"], data["status"], booking_id))
 
 
 def delete_booking(booking_id):

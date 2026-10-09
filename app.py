@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, render_template
 import db
 
 app = Flask(__name__)
-
+app.json.sort_keys = False
 
 def safe(fn, *args, **kwargs):
     try:

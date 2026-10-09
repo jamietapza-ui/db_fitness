@@ -81,6 +81,11 @@ const ENTITIES = {
         "key": "room",
         "label": "ห้อง",
         "type": "text"
+      },
+      {
+        "key": "trainer_name",
+        "label": "ชื่อเทรนเนอร์",
+        "type": "text"
       }
     ],
     "form": [
@@ -88,11 +93,6 @@ const ENTITIES = {
         "key": "name",
         "label": "ชื่อคลาส",
         "type": "text"
-      },
-      {
-        "key": "trainer_id",
-        "label": "รหัสเทรนเนอร์",
-        "type": "number"
       },
       {
         "key": "room",
@@ -105,8 +105,13 @@ const ENTITIES = {
         "type": "number"
       },
       {
-        "key": "schedule_time",
-        "label": "เวลา",
+        "key": "start_date",
+        "label": "เวลาเริ่มต้น",
+        "type": "datetime-local"
+      },
+      {
+        "key": "trainer_name",
+        "label": "ชื่อเทรนเนอร์",
         "type": "text"
       }
     ]
@@ -117,14 +122,14 @@ const ENTITIES = {
     "idKey": "booking_id",
     "search": [
       {
-        "key": "member_id",
-        "label": "รหัสสมาชิก",
-        "type": "number"
+        "key": "member_name",
+        "label": "ชื่อสมาชิก",
+        "type": "text"
       },
       {
-        "key": "class_id",
-        "label": "รหัสคลาส",
-        "type": "number"
+        "key": "class_name",
+        "label": "ชื่อคลาส",
+        "type": "text"
       },
       {
         "key": "status",
@@ -139,19 +144,19 @@ const ENTITIES = {
     ],
     "form": [
       {
-        "key": "member_id",
-        "label": "รหัสสมาชิก",
-        "type": "number"
+        "key": "member_name",
+        "label": "ชื่อสมาชิก",
+        "type": "text"
       },
       {
-        "key": "class_id",
-        "label": "รหัสคลาส",
-        "type": "number"
+        "key": "class_name",
+        "label": "ชื่อคลาส",
+        "type": "text"
       },
       {
         "key": "book_date",
         "label": "วันที่จอง",
-        "type": "date"
+        "type": "datetime-local"
       },
       {
         "key": "status",
