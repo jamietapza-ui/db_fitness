@@ -80,14 +80,6 @@ def delete_member(member_id):
     return run_command(sql, (member_id,))
 
 # ---------- คลาสเรียน (gym_class) ----------
-def find_trainer_id(trainer_name):
-    """หา trainer_id จากชื่อเทรนเนอร์"""
-    if not trainer_name:
-        return None
-    rows = run_query("SELECT trainer_id FROM trainer WHERE name = %s LIMIT 1",
-                     (trainer_name,))
-    return rows[0]["trainer_id"] if rows else None
-
 def search_classes(filters):
     sql = """SELECT c.class_id,
                     c.name,
@@ -143,22 +135,6 @@ def delete_class(class_id):
     return run_command("DELETE FROM gym_class WHERE class_id = %s", (class_id,))
 
 # ---------- การจอง (booking) ----------
-def find_Class_id(class_name):
-    """หา class_id จากชื่อคลาส"""
-    if not class_name:
-        return None
-    rows = run_query("SELECT class_id FROM gym_class WHERE name = %s LIMIT 1",
-                     (class_name,))
-    return rows[0]["class_id"] if rows else None
-
-def find_member_id(member_name):
-    """หา member_id จากชื่อสมาชิก"""
-    if not member_name:
-        return None
-    rows = run_query("SELECT member_id FROM member WHERE name = %s LIMIT 1",
-                     (member_name,))
-    return rows[0]["member_id"] if rows else None
-
 def search_bookings(filters):
     """ค้นหา การจอง ตามเงื่อนไข (member_id, class_id, status)
     คำใบ้: เริ่มจาก sql = "SELECT * FROM booking WHERE 1=1"
