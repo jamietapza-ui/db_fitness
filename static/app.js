@@ -215,6 +215,40 @@ const ENTITIES = {
         "type": "text"
       }
     ]
+  },
+  "equipment": {
+    "label": "อุปกรณ์",
+    "api": "/api/equipment",
+    "idKey": "equipment_id",
+    "search": [
+      {
+        "key": "name",
+        "label": "ชื่ออุปกรณ์",
+        "type": "text"
+      }
+    ],
+    "form": [
+      {
+        "key": "name",
+        "label": "ชื่ออุปกรณ์",
+        "type": "text"
+      },
+      {
+        "key": "zone",
+        "label": "โซน",
+        "type": "text"
+      },
+      {
+        "key": "status",
+        "label": "สถานะ",
+        "type": "select",
+        "options": [
+          "Available",
+          "Maintenance",
+          "Out of Order"
+        ]
+      }
+    ]
   }
 };
 

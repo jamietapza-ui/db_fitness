@@ -210,6 +210,30 @@ def delete_trainer(trainer_id):
     sql = "DELETE FROM trainer WHERE trainer_id = %s"
     return run_command(sql, (trainer_id,))
 
+# ---------- อุปกรณ์ (equipment) ----------
+def search_equipment(filters):
+    sql = "SELECT * FROM equipment WHERE 1=1"
+    params = []
+    if filters.get("name"):
+        sql += " AND name LIKE %s"
+        params.append(f"%{filters['name']}%")
+    return run_query(sql, tuple(params))
+
+def get_equipment(equipment_id):
+    sql = "SELECT * FROM equipment WHERE equipment_id = %s"
+    return run_query(sql, (equipment_id,))[0] if run_query(sql, (equipment_id,)) else None
+
+def create_equipment(data):
+    sql = "INSERT INTO equipment (name, zone, status) VALUES (%s, %s, %s)"
+    return run_command(sql, (data["name"], data["zone"], data["status"]))
+
+def update_equipment(equipment_id, data):
+    sql = "UPDATE equipment SET name=%s, zone=%s, status=%s WHERE equipment_id=%s"
+    return run_command(sql, (data["name"], data["zone"], data["status"], equipment_id))
+
+def delete_equipment(equipment_id):
+    sql = "DELETE FROM equipment WHERE equipment_id = %s"
+    return run_command(sql, (equipment_id,))
 
 # ============================================================
 #  REPORT (รายงาน — ใช้ JOIN + GROUP BY + subquery)
