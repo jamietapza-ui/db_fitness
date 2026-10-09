@@ -38,7 +38,15 @@ def search_members(filters):
     แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
     # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
     # _todo("search_members")
-    sql = "SELECT * FROM member WHERE 1=1"
+    sql = """SELECT member_id,
+                    name    as Name,
+                    gender  as Gender,
+                    timestampdiff(year, birth_date, curdate()) as Age,
+                    birth_date,
+                    phone   as Phone,
+                    join_date,
+                    package_type
+                    FROM member WHERE 1=1"""
     params = []
     if filters.get("name"):
         sql += " AND name LIKE %s"
@@ -53,33 +61,21 @@ def search_members(filters):
 
 
 def get_member(member_id):
-    """ดึง สมาชิก 1 รายการตาม member_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
-    # TODO: SELECT * FROM member WHERE member_id = %s แล้วคืนแถวเดียว
-    # _todo("get_member")
     sql = "SELECT * FROM member WHERE member_id = %s"
     return run_query(sql, (member_id,))[0] if run_query(sql, (member_id,)) else None
 
 
 def create_member(data):
-    """เพิ่ม สมาชิก ใหม่ — data มีคีย์: name, gender, join_date, package_type"""
-    # TODO: INSERT INTO member (...) VALUES (%s, ...)
-    # _todo("create_member")
-    sql = "INSERT INTO member (name, gender, join_date, package_type) VALUES (%s, %s, %s, %s)"
-    return run_command(sql, (data["name"], data["gender"], data["join_date"], data["package_type"]))
+    sql = "INSERT INTO member (name, gender, birth_date, phone, join_date, package_type) VALUES (%s, %s, %s, %s, %s, %s)"
+    return run_command(sql, (data["name"], data["gender"], data["birth_date"], data["phone"] ,data["join_date"], data["package_type"]))
 
 
 def update_member(member_id, data):
-    """แก้ไข สมาชิก ตาม member_id"""
-    # TODO: UPDATE member SET ... WHERE member_id=%s
-    # _todo("update_member")
     sql = "UPDATE member SET name=%s, gender=%s, join_date=%s, package_type=%s WHERE member_id=%s"
     return run_command(sql, (data["name"], data["gender"], data["join_date"], data["package_type"], member_id))
 
 
-def delete_member(member_id):
-    """ลบ สมาชิก ตาม member_id"""
-    # TODO: DELETE FROM member WHERE member_id=%s
-    # _todo("delete_member")
+def delete_member(member_id): 
     sql = "DELETE FROM member WHERE member_id = %s"
     return run_command(sql, (member_id,))
 
@@ -187,11 +183,22 @@ def delete_booking(booking_id):
 
 # ---------- เทรนเนอร์ (trainers) ----------
 def search_trainers(filters):
-    sql = "SELECT * FROM trainer WHERE 1=1"
+    sql = """SELECT trainer_id,
+                    name,
+                    specialty,
+                    phone,
+                    status
+                    FROM trainer WHERE 1=1"""
     params = []
     if filters.get("name"):
         sql += " AND name LIKE %s"
         params.append(f"%{filters['name']}%")
+    if filters.get("specialty"):
+        sql += " AND specialty = %s"
+        params.append(filters['specialty'])
+    if filters.get("phone"):
+            sql += " AND phone LIKE %s"
+            params.append(f"%{filters['phone']}%")
     return run_query(sql, tuple(params))
 
 def get_trainer(trainer_id):

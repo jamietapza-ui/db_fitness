@@ -51,6 +51,16 @@ const ENTITIES = {
         ]
       },
       {
+        "key": "birth_date",
+        "label": "วันเกิด",
+        "type": "date"       
+      },
+      {
+        "key": "phone",
+        "label": "เบอร์โทร",
+        "type": "text"       
+      },
+      {
         "key": "join_date",
         "label": "วันที่สมัคร",
         "type": "date"
