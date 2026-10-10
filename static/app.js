@@ -147,7 +147,7 @@ const ENTITIES = {
         "type": "select",
         "options": [
           "",
-          "booked",
+          "Confirmed",
           "cancelled"
         ]
       }

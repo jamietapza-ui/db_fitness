@@ -8,7 +8,7 @@ import db
 app = Flask(__name__)
 app.json.sort_keys = False
 
-def safe(fn, *args, **kwargs):
+def safe(fn, *args, **kwargs):  
     try:
         return jsonify({"ok": True, "data": fn(*args, **kwargs)})
     except NotImplementedError as e:

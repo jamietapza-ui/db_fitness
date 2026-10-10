@@ -60,6 +60,7 @@ CREATE TABLE class_equipment (    -- M:N: gym_class × equipment
 
 INSERT INTO member (name, gender, phone, birth_date, join_date, package_type) VALUES
 ('Somchai Jaidee',     'M', '0812345601', '1995-03-14', '2026-01-05', 'basic'),
+<<<<<<< HEAD
 ('Suda Rakdee',        'F', '0823456702', '1998-07-22', '2026-01-12', 'basic'),
 ('Anan Wongsawat',     'M', '0834567803', '1990-11-02', '2026-02-01', 'premium'),
 ('Napat Srisuk',       'F', '0845678904', '2001-05-30', '2026-02-15', 'basic'),
@@ -69,6 +70,17 @@ INSERT INTO member (name, gender, phone, birth_date, join_date, package_type) VA
 ('Warunee Saetang',    'F', '0889012308', '1996-06-11', '2026-05-14', 'premium'),
 ('Chaiwat Prasert',    'M', '0890123409', '1985-08-05', '2026-06-01', 'VIP'),
 ('Orawan Chaiyo',      'F', '0801234510', '2002-02-19', '2026-07-10', 'VIP');
+=======
+('Suda Rakdee',        'F', '0823456702', '1998-07-22', '2026-01-12', 'VIP'),
+('Anan Wongsawat',     'M', '0834567803', '1990-11-02', '2026-02-01', 'VIP'),
+('Napat Srisuk',       'F', '0845678904', '2001-05-30', '2026-02-15', 'basic'),
+('Kittisak Phromma',   'M', '0856789005', '1987-09-18', '2026-03-03', 'premium'),
+('Pimchanok Thongdee', 'F', '0867890106', '1999-12-09', '2026-03-20', 'premium'),
+('Thanawat Boonmee',   'M', '0878901207', '1993-01-27', '2026-04-08', 'premium'),
+('Warunee Saetang',    'F', '0889012308', '1996-06-11', '2026-05-14', 'basic'),
+('Chaiwat Prasert',    'M', '0890123409', '1985-08-05', '2026-06-01', 'VIP'),
+('Orawan Chaiyo',      'F', '0801234510', '2002-02-19', '2026-07-10', 'basic');
+>>>>>>> 541609c3d5821d02a95f9edcd139ff0471f067d2
 
 INSERT INTO trainer (name, specialty, phone, status) VALUES
 ('Kru Mali Sukjai',  'Yoga & Pilates',    '0911111101', 'Active'),
