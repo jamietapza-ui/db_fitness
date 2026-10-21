@@ -120,8 +120,13 @@ const ENTITIES = {
         "type": "datetime-local"
       },
       {
-        "key": "trainer_name",
-        "label": "ชื่อเทรนเนอร์",
+        "key": "end_date",
+        "label": "เวลาสิ้นสุด",
+        "type": "datetime-local"
+      },
+      {
+        "key": "trainer_id",
+        "label": "รหัสเทรนเนอร์",
         "type": "text"
       }
     ]
@@ -154,13 +159,13 @@ const ENTITIES = {
     ],
     "form": [
       {
-        "key": "member_name",
-        "label": "ชื่อสมาชิก",
+        "key": "member_id",
+        "label": "รหัสสมาชิก",
         "type": "text"
       },
       {
-        "key": "class_name",
-        "label": "ชื่อคลาส",
+        "key": "class_id",
+        "label": "รหัสคลาส",
         "type": "text"
       },
       {
@@ -212,22 +217,32 @@ const ENTITIES = {
         "key": "name",
         "label": "ชื่อเทรนเนอร์",
         "type": "text"
-      },
-      {
-        "key": "specialty",
-        "label": "ความเชี่ยวชาญ",
-        "type": "select",
-        "options": [
-          "Zumba",
-          "Cardio",
-          "Yoga",
-          "Weight Training"
-        ]
-      },
+        },
+        {
+          "key": "specialty",
+          "label": "ความเชี่ยวชาญ",
+          "type": "select",
+          "options": [
+            "Zumba",
+            "Cardio",
+            "Yoga",
+            "Weight Training"
+          ]
+        },
       {
         "key": "phone",
         "label": "เบอร์โทร",
         "type": "text"
+      },
+      {
+        "key": "status",
+        "label": "สถานะ",
+        "type": "select",
+        "options": [
+          "Active",
+          "On leave",
+          "Retired"
+        ]
       }
     ]
   },
@@ -262,6 +277,55 @@ const ENTITIES = {
           "Maintenance",
           "Out of Order"
         ]
+      }
+    ]
+  },
+  "packages": {
+    "label": "แพ็กเกจ",
+    "api": "/api/packages",
+    "idKey": "package_id",
+    "search": [
+      {
+        "key": "name",
+        "label": "ชื่อแพ็กเกจ",
+        "type": "select",
+        "options": [
+          "",
+          "premium",
+          "basic",
+          "VIP"
+        ]
+      }
+    ],
+    "form": [
+      {
+        "key": "name",
+        "label": "ชื่อแพ็กเกจ",
+        "type": "select",
+        "options": [
+          "premium",
+          "basic",
+          "VIP"
+        ]
+      }
+    ]
+  },
+  "reviews": {
+    "label": "รีวิว",
+    "api": "/api/reviews",
+    "idKey": "review_id",
+    "search": [
+      {
+        "key": "name",
+        "label": "ชื่อผู้ใช้",
+        "type": "text"
+      }
+    ],
+    "form": [
+      {
+        "key": "name",
+        "label": "ชื่อผู้ใช้",
+        "type": "text"
       }
     ]
   }
