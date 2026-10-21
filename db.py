@@ -42,7 +42,6 @@ def search_members(filters):
                     name    as Name,
                     gender  as Gender,
                     timestampdiff(year, birth_date, curdate()) as Age,
-                    birth_date,
                     phone   as Phone,
                     join_date,
                     package_type
@@ -80,6 +79,7 @@ def delete_member(member_id):
     return run_command(sql, (member_id,))
 
 # ---------- คลาสเรียน (gym_class) ----------
+
 def search_classes(filters):
     sql = """SELECT c.class_id,
                     c.name,
@@ -117,22 +117,23 @@ def get_class(class_id):
 def create_class(data):
     sql = """INSERT INTO gym_class (name, trainer_id, room, capacity, start_date)
              VALUES (%s, %s, %s, %s, %s)"""
-    return run_command(sql, (data["name"], trainer_id, data["room"],
+    return run_command(sql, (data["name"], data["trainer_id"], data["room"],
                              data["capacity"], data["start_date"]))
 
 
 def update_class(class_id, data):
     sql = """UPDATE gym_class
-             SET name=%s, trainer_id=%s, room=%s, capacity=%s, start_date=%s
+             SET name=%s, room=%s, capacity=%s, start_date=%s,trainer_id=%s
              WHERE class_id=%s"""
-    return run_command(sql, (data["name"], trainer_id, data["room"],
-                             data["capacity"], data["start_date"], class_id))
+    return run_command(sql, (data["name"], data["room"],data["capacity"], 
+                             data["start_date"], data["trainer_id"], class_id))
 
 
 def delete_class(class_id):
     return run_command("DELETE FROM gym_class WHERE class_id = %s", (class_id,))
 
 # ---------- การจอง (booking) ----------
+
 def search_bookings(filters):
     """ค้นหา การจอง ตามเงื่อนไข (member_id, class_id, status)
     คำใบ้: เริ่มจาก sql = "SELECT * FROM booking WHERE 1=1"
@@ -181,7 +182,7 @@ def create_booking(data):
     # TODO: INSERT INTO booking (...) VALUES (%s, ...)
     # _todo("create_booking")
     sql = "INSERT INTO booking (member_id, class_id, book_date, status) VALUES (%s, %s, %s, %s)"
-    return run_command(sql, (member_id, class_id, data["book_date"], data["status"]))
+    return run_command(sql, (data["member_id"], data["class_id"], data["book_date"], data["status"]))
 
 
 def update_booking(booking_id, data):
@@ -189,7 +190,7 @@ def update_booking(booking_id, data):
     # TODO: UPDATE booking SET ... WHERE booking_id=%s
     # _todo("update_booking")
     sql = "UPDATE booking SET member_id=%s, class_id=%s, book_date=%s, status=%s WHERE booking_id=%s"
-    return run_command(sql, (member_id, class_id, data["book_date"], data["status"], booking_id))
+    return run_command(sql, (data["member_id"], data["class_id"], data["book_date"], data["status"], booking_id))
 
 
 def delete_booking(booking_id):
@@ -225,8 +226,8 @@ def get_trainer(trainer_id):
     return run_query(sql, (trainer_id,))[0] if run_query(sql, (trainer_id,)) else None
 
 def create_trainer(data):
-    sql = "INSERT INTO trainer (name, specialty, phone) VALUES (%s, %s, %s)"
-    return run_command(sql, (data["name"], data["specialty"], data["phone"]))
+    sql = "INSERT INTO trainer (name, specialty, phone, status) VALUES (%s, %s, %s, %s)"
+    return run_command(sql, (data["name"], data["specialty"], data["phone"], data["status"]))
 
 def update_trainer(trainer_id, data):
     sql = "UPDATE trainer SET name=%s, specialty=%s, phone=%s WHERE trainer_id=%s"
@@ -261,6 +262,48 @@ def delete_equipment(equipment_id):
     sql = "DELETE FROM equipment WHERE equipment_id = %s"
     return run_command(sql, (equipment_id,))
 
+#----- แพ็กเกจ -----
+def search_packages(filters):
+    # _todo("search_packages")
+    pass
+
+def get_package(package_id):
+    # _todo("get_package")
+    pass
+
+def create_package(data):
+    # _todo("create_package")
+    pass
+
+def update_package(package_id, data):
+    # _todo("update_package")
+    pass
+
+def delete_package(package_id):
+    # _todo("delete_package")
+    pass
+
+#----- รีวิว -----
+def search_reviews(filters):
+    # _todo("search_reviews")
+    pass
+
+def get_review(review_id):
+    # _todo("get_review")
+    pass
+
+def create_review(data):
+    # _todo("create_review")
+    pass
+
+def update_review(review_id, data):
+    # _todo("update_review")
+    pass
+
+def delete_review(review_id):
+    # _todo("delete_review")
+    pass
+
 # ============================================================
 #  REPORT (รายงาน — ใช้ JOIN + GROUP BY + subquery)
 # ============================================================
@@ -268,22 +311,61 @@ def report_summary():
     """ตัวเลขสรุปบนการ์ด dashboard — คืน dict เช่น {"members": 10, ...}
     คำใบ้: ใช้ COUNT(*) หลายครั้ง"""
     # TODO: นับจำนวนรวมต่าง ๆ เพื่อแสดงบนการ์ด
-    _todo("report_summary")
+    # _todo("report_summary")
+    members = run_query("SELECT COUNT(*) AS count FROM member")[0]["count"]
+    classes = run_query("SELECT COUNT(*) AS count FROM gym_class")[0]["count"]
+    bookings = run_query("SELECT COUNT(*) AS count FROM booking")[0]["count"]
+    trainers = run_query("SELECT COUNT(*) AS count FROM trainer")[0]["count"]
+    return {"members": members, "classes": classes, "bookings": bookings, "trainers": trainers}
 
 def report_popular_classes():
     """📈 คลาสยอดนิยม (Most Booked)
     คำใบ้: JOIN booking→gym_class, GROUP BY class, COUNT, ORDER BY DESC, LIMIT 5"""
     # TODO: เขียน SQL รายงานนี้ (เขียน JOIN แบบ explicit INNER JOIN ... ON ...)
-    _todo("report_popular_classes")
+    # _todo("report_popular_classes")
+    sql = """
+        SELECT gc.class_id, gc.name, COUNT(b.booking_id) as booking_count
+        FROM gym_class gc
+        LEFT JOIN booking b ON gc.class_id = b.class_id
+        GROUP BY gc.class_id, gc.name
+        ORDER BY booking_count DESC
+        LIMIT 5
+    """
+    return run_query(sql)
 
 def report_trainers_above_avg():
     """🏅 เทรนเนอร์ที่มีผู้จองมากกว่าค่าเฉลี่ย (Above Average)
     คำใบ้: JOIN booking→gym_class→trainer, GROUP BY trainer, HAVING COUNT(*) > (subquery AVG)"""
     # TODO: เขียน SQL รายงานนี้ (เขียน JOIN แบบ explicit INNER JOIN ... ON ...)
-    _todo("report_trainers_above_avg")
+    # _todo("report_trainers_above_avg")
+    sql = """
+        SELECT t.trainer_id, t.name, COUNT(b.booking_id) as booking_count
+        FROM trainer t
+        LEFT JOIN gym_class gc ON t.trainer_id = gc.trainer_id
+        LEFT JOIN booking b ON gc.class_id = b.class_id
+        GROUP BY t.trainer_id, t.name
+        HAVING COUNT(b.booking_id) > (
+            SELECT AVG(booking_count)
+            FROM (
+                SELECT COUNT(b2.booking_id) as booking_count
+                FROM trainer t2
+                LEFT JOIN gym_class gc2 ON t2.trainer_id = gc2.trainer_id
+                LEFT JOIN booking b2 ON gc2.class_id = b2.class_id
+                GROUP BY t2.trainer_id
+            ) avg_bookings
+        )
+    """
+    return run_query(sql)
 
 def report_class_equipment():
     """🧰 อุปกรณ์ที่ใช้ในแต่ละคลาส (Join 3 Tables)
     คำใบ้: JOIN class_equipment→gym_class, class_equipment→equipment"""
     # TODO: เขียน SQL รายงานนี้ (เขียน JOIN แบบ explicit INNER JOIN ... ON ...)
-    _todo("report_class_equipment")
+    # _todo("report_class_equipment")
+    sql = """
+        SELECT gc.class_id, gc.name, e.equip_id, e.name as equipment_name
+        FROM gym_class gc
+        LEFT JOIN class_equipment ce ON gc.class_id = ce.class_id
+        LEFT JOIN equipment e ON ce.equip_id = e.equip_id
+    """
+    return run_query(sql)
