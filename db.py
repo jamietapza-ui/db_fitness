@@ -103,7 +103,7 @@ def search_classes(filters):
                     c.name,
                     c.room,
                     t.name AS trainer_name,
-                    c.capacity,
+                    c.capacity - (SELECT COUNT(*) FROM booking b WHERE b.class_id = c.class_id) AS available_slots,
                     c.start_date,
                     c.end_date
              FROM gym_class c
@@ -124,7 +124,10 @@ def search_classes(filters):
 
 
 def get_class(class_id):
-    sql = """SELECT c.*, t.name AS trainer_name
+    sql = """SELECT c.*, 
+                    t.name AS trainer_name,
+                    CAST(c.start_date AS CHAR) AS start_date,
+                    CAST(c.end_date AS CHAR) AS end_date
              FROM gym_class c
              LEFT JOIN trainer t ON c.trainer_id = t.trainer_id
              WHERE c.class_id = %s"""
@@ -187,7 +190,8 @@ def get_booking(booking_id):
     # _todo("get_booking")
     sql = """SELECT b.*, 
                     m.name AS member_name, 
-                    c.name AS class_name 
+                    c.name AS class_name,
+                    CAST(b.book_date AS CHAR) AS book_date
                     FROM booking b 
                     LEFT JOIN member m ON b.member_id = m.member_id 
                     LEFT JOIN gym_class c ON b.class_id = c.class_id 
@@ -224,8 +228,7 @@ def search_trainers(filters):
     sql = """SELECT trainer_id,
                     name,
                     specialty,
-                    phone,
-                    status
+                    phone
                     FROM trainer WHERE 1=1"""
     params = []
     if filters.get("name"):
@@ -308,7 +311,16 @@ def delete_package(package_id):
 #----- รีวิว -----
 def search_reviews(filters):
     # _todo("search_reviews")
-    sql = "SELECT * FROM review WHERE 1=1"
+    sql = """SELECT r.review_id, 
+                    c.name AS class_name, 
+                    t.name AS trainer_name, 
+                    m.name AS member_name, 
+                    r.TEXT_reviews
+                    FROM reviews r 
+                    JOIN gym_class c ON r.class_id = c.class_id 
+                    JOIN trainer t ON c.trainer_id = t.trainer_id 
+                    JOIN member m ON r.member_id = m.member_id 
+                    WHERE 1=1"""
     params = []
     if filters.get("type"):
         sql += " AND type LIKE %s"
@@ -317,22 +329,22 @@ def search_reviews(filters):
 
 def get_review(review_id):
     # _todo("get_review")
-    sql = "SELECT * FROM review WHERE review_id = %s"
+    sql = "SELECT * FROM reviews WHERE review_id = %s"
     return run_query(sql, (review_id,))[0] if run_query(sql, (review_id,)) else None
 
 def create_review(data):
     # _todo("create_review")
-    sql = "INSERT INTO review (type, content) VALUES (%s, %s)"
+    sql = "INSERT INTO reviews (type, content) VALUES (%s, %s)"
     return run_command(sql, (data["type"], data["content"]))
 
 def update_review(review_id, data):
     # _todo("update_review")
-    sql = "UPDATE review SET type=%s, content=%s WHERE review_id=%s"
+    sql = "UPDATE reviews SET type=%s, content=%s WHERE review_id=%s"
     return run_command(sql, (data["type"], data["content"], review_id))
 
 def delete_review(review_id):
     # _todo("delete_review")
-    sql = "DELETE FROM review WHERE review_id = %s"
+    sql = "DELETE FROM reviews WHERE review_id = %s"
     return run_command(sql, (review_id,))
 
 # ============================================================
