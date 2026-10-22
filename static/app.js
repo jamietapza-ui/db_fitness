@@ -24,7 +24,7 @@ const ENTITIES = {
         ]
       },
       {
-        "key": "package_type",
+        "key": "type",
         "label": "แพ็กเกจ",
         "type": "select",
         "options": [
@@ -51,9 +51,9 @@ const ENTITIES = {
         ]
       },
       {
-        "key": "birth_date",
-        "label": "วันเกิด",
-        "type": "date"       
+        "key": "age",
+        "label": "อายุ",
+        "type": "text"       
       },
       {
         "key": "phone",
@@ -66,7 +66,7 @@ const ENTITIES = {
         "type": "date"
       },
       {
-        "key": "package_type",
+        "key": "type",
         "label": "แพ็กเกจ",
         "type": "select",
         "options": [
@@ -286,8 +286,8 @@ const ENTITIES = {
     "idKey": "package_id",
     "search": [
       {
-        "key": "name",
-        "label": "ชื่อแพ็กเกจ",
+        "key": "type",
+        "label": "แพ็กเกจ",
         "type": "select",
         "options": [
           "",
@@ -299,15 +299,30 @@ const ENTITIES = {
     ],
     "form": [
       {
-        "key": "name",
-        "label": "ชื่อแพ็กเกจ",
+        "key": "pack_name",
+        "label": "แพ็กเกจ",
+        "type": "select",
+        "options" : [
+          "รายวัน",
+          "รายเดือน",
+          "รายปี"
+        ]
+      },
+      {
+        "key": "type",
+        "label": "ระดับ",
         "type": "select",
         "options": [
           "premium",
           "basic",
           "VIP"
         ]
-      }
+      },
+      {
+        "key": "price",
+        "label": "ราคา",
+        "type": "text",
+      },
     ]
   },
   "reviews": {

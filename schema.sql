@@ -16,7 +16,7 @@ CREATE TABLE member (
     name          VARCHAR(100) NOT NULL,
     gender        CHAR(1) NOT NULL,
     phone         VARCHAR(15) NOT NULL,
-    birth_date    DATE NOT NULL,
+    age           INT NOT NULL,
     join_date     DATE NOT NULL,
     package_id    INT NOT NULL,
     FOREIGN KEY (package_id) REFERENCES package(package_id)

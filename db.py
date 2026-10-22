@@ -38,40 +38,58 @@ def search_members(filters):
     แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
     # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
     # _todo("search_members")
-    sql = """SELECT member_id,
-                    name    as Name,
-                    gender  as Gender,
-                    timestampdiff(year, birth_date, curdate()) as Age,
-                    phone   as Phone,
-                    join_date,
-                    package_type
-                    FROM member WHERE 1=1"""
+    sql = """SELECT m.member_id,
+                    m.name    as Name,
+                    m.gender  as Gender,
+                    m.age     as Age,
+                    m.phone   as Phone,
+                    DATE_FORMAT(m.join_date, '%d/%m/%Y') AS join_date,
+                    p.pack_name,
+                    p.type
+                    FROM member m
+                    JOIN package p on p.package_id = m.package_id 
+                    WHERE 1=1"""
     params = []
     if filters.get("name"):
-        sql += " AND name LIKE %s"
+        sql += " AND m.name LIKE %s"
         params.append(f"%{filters['name']}%")
     if filters.get("gender"):
-        sql += " AND gender = %s"
+        sql += " AND m.gender = %s"
         params.append(filters["gender"])
-    if filters.get("package_type"):
-        sql += " AND package_type = %s"
-        params.append(filters["package_type"])
+    if filters.get("type"):
+        sql += " AND p.type = %s"
+        params.append(filters["type"])
+    sql += " ORDER BY m.member_id"
     return run_query(sql, tuple(params))
 
 
 def get_member(member_id):
-    sql = "SELECT * FROM member WHERE member_id = %s"
-    return run_query(sql, (member_id,))[0] if run_query(sql, (member_id,)) else None
+    sql = """SELECT m.member_id, m.name, m.gender, m.age, m.phone,
+                    CAST(m.join_date AS CHAR) AS join_date,
+                    p.pack_name AS type
+             FROM member m
+             JOIN package p ON p.package_id = m.package_id
+             WHERE m.member_id = %s"""
+    rows = run_query(sql, (member_id,))
+    return rows[0] if rows else None
 
 
 def create_member(data):
-    sql = "INSERT INTO member (name, gender, birth_date, phone, join_date, package_type) VALUES (%s, %s, %s, %s, %s, %s)"
-    return run_command(sql, (data["name"], data["gender"], data["birth_date"], data["phone"] ,data["join_date"], data["package_type"]))
+    sql = """INSERT INTO member (name, gender, age, phone, join_date, package_id)
+             VALUES (%s, %s, %s, %s, %s,
+            (SELECT package_id FROM package WHERE pack_name = %s))"""
+    return run_command(sql, (data["name"], data["gender"], data["age"],
+                             data["phone"], data["join_date"], data["type"]))
 
 
 def update_member(member_id, data):
-    sql = "UPDATE member SET name=%s, gender=%s, join_date=%s, package_type=%s WHERE member_id=%s"
-    return run_command(sql, (data["name"], data["gender"], data["join_date"], data["package_type"], member_id))
+    sql = """UPDATE member
+            SET name=%s, gender=%s, age=%s, phone=%s, join_date=%s,
+            package_id=(SELECT package_id FROM package WHERE pack_name = %s)
+            WHERE member_id=%s"""
+    return run_command(sql, (data["name"], data["gender"], data["age"],
+                             data["phone"], data["join_date"],
+                             data["type"], member_id))
 
 
 def delete_member(member_id): 
@@ -264,24 +282,28 @@ def delete_equipment(equipment_id):
 
 #----- แพ็กเกจ -----
 def search_packages(filters):
-    # _todo("search_packages")
-    pass
+    sql = "SELECT * FROM package WHERE 1=1"
+    params = []
+    if filters.get("type"):
+        sql += " AND type LIKE %s"
+        params.append(f"%{filters['type']}%")
+    return run_query(sql, tuple(params))
 
 def get_package(package_id):
-    # _todo("get_package")
-    pass
+    sql = "SELECT * FROM package WHERE package_id = %s"
+    return run_query(sql, (package_id,))[0] if run_query(sql, (package_id,)) else None
 
 def create_package(data):
-    # _todo("create_package")
-    pass
+    sql = "INSERT INTO package (pack_name, type, price) VALUES (%s, %s, %s)"
+    return run_command(sql, (data["pack_name"], data["type"], data["price"]))
 
 def update_package(package_id, data):
-    # _todo("update_package")
-    pass
+    sql = "UPDATE package SET pack_name=%s, type=%s, price=%s WHERE package_id=%s"
+    return run_command(sql, (data["pack_name"], data["type"], data["price"], package_id))
 
 def delete_package(package_id):
-    # _todo("delete_package")
-    pass
+    sql = "DELETE FROM package WHERE package_id = %s"
+    return run_command(sql, (package_id,))
 
 #----- รีวิว -----
 def search_reviews(filters):
