@@ -1,4 +1,4 @@
--- Active: 1790434080501@@127.0.0.1@3306@project69
+-- Active: 1790433592999@@127.0.0.1@3306@project69
 -- ============================================================
 --  schema.sql — ระบบฟิตเนส (นิสิตออกแบบและเขียนเอง)
 --  กติกา: การจอง = M:N (member × gym_class), อุปกรณ์ต่อคลาส = M:N (gym_class × equipment),
@@ -146,23 +146,23 @@ INSERT INTO gym_class (trainer_id, name, room, capacity, start_date, end_date) V
 (11, 'Stretch & Relax',     'Room A', 20, '2025-06-11 07:30:00', '2025-06-11 08:30:00');
  
 INSERT INTO booking (member_id, class_id, book_date, status) VALUES
-(1,  1,  '2025-05-28', 'confirmed'),
-(2,  1,  '2025-05-28', 'confirmed'),
-(3,  2,  '2025-05-29', 'confirmed'),
+(1,  1,  '2025-05-28', 'Booked'),
+(2,  1,  '2025-05-28', 'Booked'),
+(3,  2,  '2025-05-29', 'Booked'),
 (4,  3,  '2025-05-30', 'cancelled'),
-(5,  4,  '2025-05-30', 'confirmed'),
-(6,  5,  '2025-05-31', 'confirmed'),
-(7,  3,  '2025-05-31', 'pending'),
-(8,  6,  '2025-06-01', 'confirmed'),
-(1,  2,  '2025-06-01', 'confirmed'),
-(9,  7,  '2025-06-02', 'confirmed'),
-(10, 7,  '2025-06-02', 'confirmed'),
-(11, 8,  '2025-06-03', 'confirmed'),
-(12, 9,  '2025-06-04', 'pending'),
-(13, 10, '2025-06-05', 'confirmed'),
+(5,  4,  '2025-05-30', 'Booked'),
+(6,  5,  '2025-05-31', 'Booked'),
+(7,  3,  '2025-05-31', 'cancelled'),
+(8,  6,  '2025-06-01', 'Booked'),
+(1,  2,  '2025-06-01', 'Booked'),
+(9,  7,  '2025-06-02', 'Booked'),
+(10, 7,  '2025-06-02', 'Booked'),
+(11, 8,  '2025-06-03', 'Booked'),
+(12, 9,  '2025-06-04', 'cancelled'),
+(13, 10, '2025-06-05', 'Booked'),
 (14, 11, '2025-06-06', 'cancelled'),
-(2,  12, '2025-06-07', 'confirmed'),
-(3,  9,  '2025-06-07', 'confirmed');
+(2,  12, '2025-06-07', 'Booked'),
+(3,  9,  '2025-06-07', 'Booked');
  
 INSERT INTO class_equipment (class_id, equip_id, quantity) VALUES
 (1,  1,  20),

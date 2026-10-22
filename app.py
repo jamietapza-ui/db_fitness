@@ -32,6 +32,10 @@ def members_list():
     filters = {k: v for k, v in request.args.items() if v}
     return safe(db.search_members, filters)
 
+@app.route("/api/members/options", methods=["GET"])
+def members_options():
+    return safe(db.member_options)
+
 @app.route("/api/members/<int:_id>", methods=["GET"])
 def member_get(_id):
     return safe(db.get_member, _id)
@@ -53,6 +57,10 @@ def member_delete(_id):
 def classes_list():
     filters = {k: v for k, v in request.args.items() if v}
     return safe(db.search_classes, filters)
+
+@app.route("/api/classes/options", methods=["GET"])
+def classes_options():
+    return safe(db.class_options)
 
 @app.route("/api/classes/<int:_id>", methods=["GET"])
 def class_get(_id):
@@ -97,6 +105,10 @@ def booking_delete(_id):
 def trainers_list():
     filters = {k: v for k, v in request.args.items() if v}
     return safe(db.search_trainers, filters)
+
+@app.route("/api/trainers/options", methods=["GET"])
+def trainers_options():
+    return safe(db.trainer_options)
 
 @app.route("/api/trainers/<int:_id>", methods=["GET"])
 def trainer_get(_id):

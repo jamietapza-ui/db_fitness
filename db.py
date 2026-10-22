@@ -59,14 +59,23 @@ def search_members(filters):
     if filters.get("type"):
         sql += " AND p.type = %s"
         params.append(filters["type"])
+    if filters.get("pack_name"):
+        sql += " AND p.pack_name = %s"
+        params.append(filters["pack_name"])
     sql += " ORDER BY m.member_id"
     return run_query(sql, tuple(params))
+
+
+def member_options():
+    """รายชื่อสมาชิกสำหรับ dropdown (value = id, label = ชื่อ)"""
+    rows = run_query("SELECT member_id, name FROM member ORDER BY name")
+    return [{"value": r["member_id"], "label": r["name"]} for r in rows]
 
 
 def get_member(member_id):
     sql = """SELECT m.member_id, m.name, m.gender, m.age, m.phone,
                     CAST(m.join_date AS CHAR) AS join_date,
-                    p.pack_name AS type
+                    p.type, p.pack_name
              FROM member m
              JOIN package p ON p.package_id = m.package_id
              WHERE m.member_id = %s"""
@@ -77,19 +86,20 @@ def get_member(member_id):
 def create_member(data):
     sql = """INSERT INTO member (name, gender, age, phone, join_date, package_id)
              VALUES (%s, %s, %s, %s, %s,
-            (SELECT package_id FROM package WHERE pack_name = %s))"""
+            (SELECT package_id FROM package WHERE type = %s AND pack_name = %s))"""
     return run_command(sql, (data["name"], data["gender"], data["age"],
-                             data["phone"], data["join_date"], data["type"]))
+                             data["phone"], data["join_date"],
+                             data["type"], data["pack_name"]))
 
 
 def update_member(member_id, data):
     sql = """UPDATE member
             SET name=%s, gender=%s, age=%s, phone=%s, join_date=%s,
-            package_id=(SELECT package_id FROM package WHERE pack_name = %s)
+            package_id=(SELECT package_id FROM package WHERE type = %s AND pack_name = %s)
             WHERE member_id=%s"""
     return run_command(sql, (data["name"], data["gender"], data["age"],
                              data["phone"], data["join_date"],
-                             data["type"], member_id))
+                             data["type"], data["pack_name"], member_id))
 
 
 def delete_member(member_id): 
@@ -104,8 +114,8 @@ def search_classes(filters):
                     c.room,
                     t.name AS trainer_name,
                     c.capacity - (SELECT COUNT(*) FROM booking b WHERE b.class_id = c.class_id) AS available_slots,
-                    c.start_date,
-                    c.end_date
+                    DATE_FORMAT(c.start_date, '%d/%m/%Y %H:%i') AS start_date,
+                    DATE_FORMAT(c.end_date, '%d/%m/%Y %H:%i') AS end_date
              FROM gym_class c
              LEFT JOIN trainer t ON c.trainer_id = t.trainer_id
              WHERE 1=1"""
@@ -116,11 +126,17 @@ def search_classes(filters):
     if filters.get("room"):
         sql += " AND c.room LIKE %s"
         params.append(f"%{filters['room']}%")
-    if filters.get("trainer_name"):
-        sql += " AND t.name LIKE %s"
-        params.append(f"%{filters['trainer_name']}%")
+    if filters.get("trainer_id"):
+        sql += " AND c.trainer_id = %s"
+        params.append(filters["trainer_id"])
     sql += " ORDER BY c.class_id"
     return run_query(sql, tuple(params))
+
+
+def class_options():
+    """รายชื่อคลาสสำหรับ dropdown (value = id, label = ชื่อคลาส)"""
+    rows = run_query("SELECT class_id, name FROM gym_class ORDER BY name")
+    return [{"value": r["class_id"], "label": r["name"]} for r in rows]
 
 
 def get_class(class_id):
@@ -136,18 +152,18 @@ def get_class(class_id):
 
 
 def create_class(data):
-    sql = """INSERT INTO gym_class (name, trainer_id, room, capacity, start_date)
-             VALUES (%s, %s, %s, %s, %s)"""
+    sql = """INSERT INTO gym_class (name, trainer_id, room, capacity, start_date, end_date)
+             VALUES (%s, %s, %s, %s, %s, %s)"""
     return run_command(sql, (data["name"], data["trainer_id"], data["room"],
-                             data["capacity"], data["start_date"]))
+                             data["capacity"], data["start_date"], data["end_date"]))
 
 
 def update_class(class_id, data):
     sql = """UPDATE gym_class
-             SET name=%s, room=%s, capacity=%s, start_date=%s,trainer_id=%s
+             SET name=%s, room=%s, capacity=%s, start_date=%s, end_date=%s, trainer_id=%s
              WHERE class_id=%s"""
-    return run_command(sql, (data["name"], data["room"],data["capacity"], 
-                             data["start_date"], data["trainer_id"], class_id))
+    return run_command(sql, (data["name"], data["room"], data["capacity"],
+                             data["start_date"], data["end_date"], data["trainer_id"], class_id))
 
 
 def delete_class(class_id):
@@ -188,10 +204,10 @@ def get_booking(booking_id):
     """ดึง การจอง 1 รายการตาม booking_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
     # TODO: SELECT * FROM booking WHERE booking_id = %s แล้วคืนแถวเดียว
     # _todo("get_booking")
-    sql = """SELECT b.*, 
-                    m.name AS member_name, 
-                    c.name AS class_name,
-                    CAST(b.book_date AS CHAR) AS book_date
+    sql = """SELECT m.name AS member_name, 
+                    c.name AS class_name ,
+                    CAST(b.book_date AS CHAR) AS book_date,
+                    b.status
                     FROM booking b 
                     LEFT JOIN member m ON b.member_id = m.member_id 
                     LEFT JOIN gym_class c ON b.class_id = c.class_id 
@@ -241,6 +257,11 @@ def search_trainers(filters):
             sql += " AND phone LIKE %s"
             params.append(f"%{filters['phone']}%")
     return run_query(sql, tuple(params))
+
+def trainer_options():
+    """รายชื่อเทรนเนอร์สำหรับ dropdown (value = id, label = ชื่อ)"""
+    rows = run_query("SELECT trainer_id, name FROM trainer ORDER BY name")
+    return [{"value": r["trainer_id"], "label": r["name"]} for r in rows]
 
 def get_trainer(trainer_id):
     sql = "SELECT * FROM trainer WHERE trainer_id = %s"

@@ -25,13 +25,13 @@ const ENTITIES = {
       },
       {
         "key": "type",
-        "label": "แพ็กเกจ",
+        "label": "ระดับ",
         "type": "select",
         "options": [
-          "",
-          "basic",
-          "premium",
-          "VIP"
+          { "value": "", "label": "ทั้งหมด" },
+          { "value": "basic", "label": "Basic" },
+          { "value": "premium", "label": "Premium" },
+          { "value": "vip", "label": "VIP" }
         ]
       }
     ],
@@ -67,12 +67,22 @@ const ENTITIES = {
       },
       {
         "key": "type",
-        "label": "แพ็กเกจ",
+        "label": "ระดับแพ็กเกจ",
         "type": "select",
         "options": [
-          "basic",
-          "premium",
-          "VIP"
+          { "value": "basic", "label": "Basic" },
+          { "value": "premium", "label": "Premium" },
+          { "value": "vip", "label": "VIP" }
+        ]
+      },
+      {
+        "key": "pack_name",
+        "label": "ระยะเวลาที่สมัคร",
+        "type": "select",
+        "options": [
+          { "value": "รายวัน", "label": "รายวัน" },
+          { "value": "รายเดือน", "label": "รายเดือน" },
+          { "value": "รายปี", "label": "รายปี" }
         ]
       }
     ]
@@ -93,9 +103,10 @@ const ENTITIES = {
         "type": "text"
       },
       {
-        "key": "trainer_name",
+        "key": "trainer_id",
         "label": "ชื่อเทรนเนอร์",
-        "type": "text"
+        "type": "select",
+        "optionsFrom": "trainers"
       }
     ],
     "form": [
@@ -125,14 +136,10 @@ const ENTITIES = {
         "type": "datetime-local"
       },
       {
-        "key": "trainer_name",
+        "key": "trainer_id",
         "label": "ชื่อเทรนเนอร์",
         "type": "select",
-        "options": [
-          "John Doe",
-          "Jane Smith",
-          "Bob Johnson"
-        ]
+        "optionsFrom": "trainers"
       }
     ]
   },
@@ -157,36 +164,34 @@ const ENTITIES = {
         "type": "select",
         "options": [
           "",
-          "Confirmed",
-          "cancelled",
-          "pending"
+          "Booked",
+          "cancelled"
         ]
       }
     ],
     "form": [
       {
-        "key": "member_id",
-        "label": "รหัสสมาชิก",
+        "key": "member_name",
+        "label": "ชื่อสมาชิก",
         "type": "text"
       },
       {
-        "key": "class_id",
-        "label": "รหัสคลาส",
+        "key": "class_name",
+        "label": "ชื่อคลาส",
         "type": "text"
       },
       {
         "key": "book_date",
         "label": "วันที่จอง",
-        "type": "datetime-local"
+        "type": "date"
       },
       {
         "key": "status",
         "label": "สถานะ",
         "type": "select",
         "options": [
-          "Confirmed",
-          "cancelled",
-          "pending"
+          "Booked",
+          "cancelled"
         ]
       }
     ]
@@ -240,16 +245,6 @@ const ENTITIES = {
         "key": "phone",
         "label": "เบอร์โทร",
         "type": "text"
-      },
-      {
-        "key": "status",
-        "label": "สถานะ",
-        "type": "select",
-        "options": [
-          "Active",
-          "On leave",
-          "Retired"
-        ]
       }
     ]
   },
@@ -338,15 +333,46 @@ const ENTITIES = {
     "idKey": "review_id",
     "search": [
       {
+        "key": "class_name",
+        "label": "ชื่อคลาส",
+        "type": "select",
+        "optionsFrom": "classes"
+      },
+      {
         "key": "name",
         "label": "ชื่อผู้ใช้",
-        "type": "text"
+        "type": "select",
+        "optionsFrom": "members"
+      },
+      {
+        "key": "trainer_name",
+        "label": "ชื่อเทรนเนอร์",
+        "type": "select",
+        "optionsFrom": "trainers"
       }
     ],
     "form": [
       {
+        "key": "class_name",
+        "label": "ชื่อคลาส",
+        "type": "select",
+        "optionsFrom": "classes"
+      },
+      {
         "key": "name",
         "label": "ชื่อผู้ใช้",
+        "type": "select",
+        "optionsFrom": "members"
+      },
+      {
+        "key": "trainer_id",
+        "label": "ชื่อเทรนเนอร์",
+        "type": "select",
+        "optionsFrom": "trainers"
+      },
+      {
+        "key": "TEXT_reviews",
+        "label": "รีวิว",
         "type": "text"
       }
     ]
@@ -356,20 +382,31 @@ const ENTITIES = {
 let current = Object.keys(ENTITIES)[0];
 let editingId = null;
 const $ = (s) => document.querySelector(s);
+const optionsCache = {};
 function setStatus(el, msg, cls = "") { el.className = "status " + cls; el.textContent = msg; }
 async function api(url, opts) { const res = await fetch(url, opts); return res.json(); }
 
 function fieldHtml(f, prefix, value = "") {
   let input;
   if (f.type === "select") {
+    // options: อาจเป็น string ธรรมดา หรือ {value,label} ที่โหลดมาจาก API (f._opts)
+    const opts = f._opts || (f.options || []).map(o => typeof o === "object" ? o : { value: o, label: o || "ทั้งหมด" });
     input = '<select id="' + prefix + f.key + '">' +
-      f.options.map(o => '<option value="' + o + '"' + (o === value ? " selected" : "") + '>' + (o || "ทั้งหมด") + '</option>').join("") + '</select>';
+      opts.map(o => '<option value="' + o.value + '"' + (String(o.value) === String(value ?? "") ? " selected" : "") + '>' + o.label + '</option>').join("") + '</select>';
   } else { input = '<input id="' + prefix + f.key + '" type="' + f.type + '" value="' + (value ?? "") + '">'; }
   return '<div class="field"><label>' + f.label + '</label>' + input + '</div>';
 }
-function buildSearch() {
+// โหลดรายการ option จาก API ให้ field ที่มี optionsFrom (เช่น รายชื่อเทรนเนอร์)
+async function resolveOptions(fields, withAll) {
+  await Promise.all(fields.filter(f => f.optionsFrom).map(async f => {
+    const list = await loadOptions(f.optionsFrom);
+    f._opts = (withAll ? [{ value: "", label: "ทั้งหมด" }] : []).concat(list);
+  }));
+}
+async function buildSearch() {
   const cfg = ENTITIES[current];
   $("#searchTitle").textContent = cfg.label;
+  await resolveOptions(cfg.search, true);
   $("#searchFields").innerHTML = cfg.search.map(f => fieldHtml(f, "s_")).join("");
 }
 async function doSearch() {
@@ -378,6 +415,13 @@ async function doSearch() {
   cfg.search.forEach(f => { const v = $("#s_" + f.key).value; if (v) params.append(f.key, v); });
   setStatus($("#status"), "กำลังค้นหา...");
   renderTable(await api(cfg.api + "?" + params.toString()));
+}
+async function loadOptions(source) {
+  if (optionsCache[source]) return optionsCache[source];
+  const r = await api(`/api/${source}/options`);
+  if (!r.ok) { alert("โหลดรายการไม่สำเร็จ: " + r.error); return []; }
+  optionsCache[source] = r.data;   // [{value: 1, label: "John Doe"}, ...]
+  return r.data;
 }
 function renderTable(r) {
   const head = $("#tableHead"), body = $("#tableBody"), st = $("#status");
@@ -395,8 +439,9 @@ function renderTable(r) {
       '<button class="btn sm del" onclick="deleteRow(' + id + ')">ลบ</button></td></tr>';
   }).join("");
 }
-function openForm(title, data = {}) {
+async function openForm(title, data = {}) {
   const cfg = ENTITIES[current];
+  await resolveOptions(cfg.form, false);
   $("#modalTitle").textContent = title;
   $("#formFields").innerHTML = cfg.form.map(f => fieldHtml(f, "f_", data[f.key])).join("");
   $("#modal").classList.remove("hidden");
@@ -412,6 +457,7 @@ async function deleteRow(id) {
   if (!confirm("ยืนยันการลบ?")) return;
   const r = await api(ENTITIES[current].api + "/" + id, { method: "DELETE" });
   if (!r.ok) { alert((r.todo ? "🚧 " : "⚠️ ") + r.error); return; }
+  delete optionsCache[current];
   doSearch();
 }
 async function save() {
@@ -419,6 +465,7 @@ async function save() {
   const opts = { method: editingId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) };
   const r = await api(editingId ? cfg.api + "/" + editingId : cfg.api, opts);
   if (!r.ok) { alert((r.todo ? "🚧 " : "⚠️ ") + r.error); return; }
+  delete optionsCache[current];
   $("#modal").classList.add("hidden"); doSearch();
 }
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
