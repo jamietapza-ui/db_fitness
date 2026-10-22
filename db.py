@@ -308,23 +308,32 @@ def delete_package(package_id):
 #----- รีวิว -----
 def search_reviews(filters):
     # _todo("search_reviews")
-    pass
+    sql = "SELECT * FROM review WHERE 1=1"
+    params = []
+    if filters.get("type"):
+        sql += " AND type LIKE %s"
+        params.append(f"%{filters['type']}%")
+    return run_query(sql, tuple(params))
 
 def get_review(review_id):
     # _todo("get_review")
-    pass
+    sql = "SELECT * FROM review WHERE review_id = %s"
+    return run_query(sql, (review_id,))[0] if run_query(sql, (review_id,)) else None
 
 def create_review(data):
     # _todo("create_review")
-    pass
+    sql = "INSERT INTO review (type, content) VALUES (%s, %s)"
+    return run_command(sql, (data["type"], data["content"]))
 
 def update_review(review_id, data):
     # _todo("update_review")
-    pass
+    sql = "UPDATE review SET type=%s, content=%s WHERE review_id=%s"
+    return run_command(sql, (data["type"], data["content"], review_id))
 
 def delete_review(review_id):
     # _todo("delete_review")
-    pass
+    sql = "DELETE FROM review WHERE review_id = %s"
+    return run_command(sql, (review_id,))
 
 # ============================================================
 #  REPORT (รายงาน — ใช้ JOIN + GROUP BY + subquery)
