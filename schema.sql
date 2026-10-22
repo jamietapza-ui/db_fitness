@@ -88,21 +88,21 @@ INSERT INTO package (pack_name, type, price) VALUES
 ('รายปี',    'premium', 12900),
 ('รายปี',    'vip',     19900);
 
-INSERT INTO member (name, gender, phone, birth_date, join_date, package_id) VALUES
-('Somchai Jaidee',       'M', '0811111111', '1995-03-15', '2025-01-10', 4),
-('Somying Raksuk',       'F', '0822222222', '1998-07-22', '2025-02-05', 5),
-('Thanakorn Mankhong',   'M', '0833333333', '1990-11-30', '2025-03-01', 9),
-('Pimchanok Srisuk',     'F', '0844444444', '2000-05-18', '2025-03-12', 1),
-('Weerapong Saengthong', 'M', '0855555555', '1987-09-09', '2025-04-02', 6),
-('Kanokwan Sukjai',      'F', '0866666666', '1993-12-25', '2025-04-20', 8),
-('Nattapon Kengkaj',     'M', '0877777777', '1999-01-07', '2025-05-05', 2),
-('Paweena Jaingam',      'F', '0888888888', '1996-06-14', '2025-05-15', 7),
-('Anucha Boonmee',       'M', '0899990001', '1992-02-11', '2025-05-20', 5),
-('Siriporn Wongsa',      'F', '0899990002', '1997-08-03', '2025-05-25', 4),
-('Kittisak Thongdee',    'M', '0899990003', '1989-10-19', '2025-06-01', 6),
-('Napatsorn Chaiyo',     'F', '0899990004', '2001-04-27', '2025-06-05', 2),
-('Preecha Suksan',       'M', '0899990005', '1985-12-02', '2025-06-10', 9),
-('Jirapat Meesuk',       'F', '0899990006', '1994-03-30', '2025-06-15', 7);
+INSERT INTO member (name, gender, phone, age, join_date, package_id) VALUES
+('Somchai Jaidee',       'M', '0811111111', '16', '2025-01-10', 4),
+('Somying Raksuk',       'F', '0822222222', '32', '2025-02-05', 5),
+('Thanakorn Mankhong',   'M', '0833333333', '14', '2025-03-01', 9),
+('Pimchanok Srisuk',     'F', '0844444444', '22', '2025-03-12', 1),
+('Weerapong Saengthong', 'M', '0855555555', '15', '2025-04-02', 6),
+('Kanokwan Sukjai',      'F', '0866666666', '41', '2025-04-20', 8),
+('Nattapon Kengkaj',     'M', '0877777777', '19', '2025-05-05', 2),
+('Paweena Jaingam',      'F', '0888888888', '23', '2025-05-15', 7),
+('Anucha Boonmee',       'M', '0899990001', '25', '2025-05-20', 5),
+('Siriporn Wongsa',      'F', '0899990002', '25', '2025-05-25', 4),
+('Kittisak Thongdee',    'M', '0899990003', '21', '2025-06-01', 6),
+('Napatsorn Chaiyo',     'F', '0899990004', '18', '2025-06-05', 2),
+('Preecha Suksan',       'M', '0899990005', '19', '2025-06-10', 9),
+('Jirapat Meesuk',       'F', '0899990006', '35', '2025-06-15', 7);
  
 INSERT INTO trainer (name, specialty, phone) VALUES
 ('Coach Alex',   'Yoga',            '0901111111'),
