@@ -4,6 +4,13 @@
 --  กติกา: การจอง = M:N (member × gym_class), อุปกรณ์ต่อคลาส = M:N (gym_class × equipment),
 --         แต่ละคลาสมีเทรนเนอร์ (1:M จาก trainer)
 -- ============================================================
+CREATE TABLE package(
+    package_id INT AUTO_INCREMENT PRIMARY KEY,
+    pack_name  VARCHAR(100) NOT NULL,
+    type       VARCHAR(50)  NOT NULL,
+    price      INT NOT NULL
+);
+
 CREATE TABLE member (
     member_id     INT AUTO_INCREMENT PRIMARY KEY,
     name          VARCHAR(100) NOT NULL,
@@ -15,12 +22,6 @@ CREATE TABLE member (
     FOREIGN KEY (package_id) REFERENCES package(package_id)
 );
 
-CREATE TABLE package(
-    package_id INT AUTO_INCREMENT PRIMARY KEY,
-    pack_name  VARCHAR(100) NOT NULL,
-    type       VARCHAR(50)  NOT NULL,
-    price      INT NOT NULL
-);
 
 CREATE TABLE trainer (
     trainer_id   INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,6 +38,7 @@ CREATE TABLE gym_class (          -- 1:M จาก trainer
     capacity      INT NOT NULL,
     start_date    DATETIME NOT NULL,
     end_date      DATETIME NOT NULL,
+    CHECK (end_date > start_date),
     FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id)
 );
 
@@ -59,21 +61,21 @@ CREATE TABLE equipment (
 CREATE TABLE class_equipment (    -- M:N: gym_class × equipment
     class_id INT NOT NULL, 
     equip_id INT NOT NULL,
-    quantity INT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
     CONSTRAINT pk_class_equip PRIMARY KEY (class_id, equip_id),
     FOREIGN KEY (class_id) REFERENCES gym_class(class_id),
     FOREIGN KEY (equip_id) REFERENCES equipment(equip_id)
 );
 
 CREATE TABLE reviews(
+    review_id    INT AUTO_INCREMENT PRIMARY KEY,
     class_id INT NOT NULL,
     trainer_id INT NOT NULL,
     member_id INT NOT NULL,
     TEXT_reviews VARCHAR(200) NOT NULL,
     Foreign Key (class_id) REFERENCES gym_class(class_id),
-    Foreign Key (trainer_id) REFERENCES trainer(trainer_id),
     FOREIGN KEY (member_id) REFERENCES member(member_id)
-)
+);
 
 INSERT INTO package (pack_name, type, price) VALUES
 ('รายวัน',   'basic',   50),
