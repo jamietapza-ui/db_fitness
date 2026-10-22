@@ -125,9 +125,14 @@ const ENTITIES = {
         "type": "datetime-local"
       },
       {
-        "key": "trainer_id",
-        "label": "รหัสเทรนเนอร์",
-        "type": "text"
+        "key": "trainer_name",
+        "label": "ชื่อเทรนเนอร์",
+        "type": "select",
+        "options": [
+          "John Doe",
+          "Jane Smith",
+          "Bob Johnson"
+        ]
       }
     ]
   },
@@ -153,7 +158,8 @@ const ENTITIES = {
         "options": [
           "",
           "Confirmed",
-          "cancelled"
+          "cancelled",
+          "pending"
         ]
       }
     ],
@@ -178,8 +184,9 @@ const ENTITIES = {
         "label": "สถานะ",
         "type": "select",
         "options": [
-          "booked",
-          "cancelled"
+          "Confirmed",
+          "cancelled",
+          "pending"
         ]
       }
     ]
