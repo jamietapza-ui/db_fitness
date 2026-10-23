@@ -23,11 +23,13 @@ async function loadSummary() {
   if (d.classes !== undefined) $("#m_cls").textContent = d.classes;
   if (d.trainers !== undefined) $("#m_trn").textContent = d.trainers;
   if (d.bookings !== undefined) $("#m_bok").textContent = d.bookings;
+  if (d.reviews !== undefined) $("#m_rev").textContent = d.reviews;
 }
 async function loadAll() {
   loadSummary();
   fillTable("#popularTable", "#popularStatus", await api("/api/reports/popular-classes"));
   fillTable("#trainersTable", "#trainersStatus", await api("/api/reports/top-trainers"));
   fillTable("#equipTable", "#equipStatus", await api("/api/reports/class-equipment"));
+  fillTable("#reviewsTable", "#reviewsStatus", await api("/api/reports/average-ratings"));
 }
 loadAll();

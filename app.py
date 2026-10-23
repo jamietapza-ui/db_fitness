@@ -168,28 +168,6 @@ def route_report_trainers_above_avg():
 def route_report_class_equipment():
     return safe(db.report_class_equipment)
 
-#---- แพ็กเกจ ----
-@app.route("/api/packages", methods=["GET"])
-def packages_list():
-    filters = {k: v for k, v in request.args.items() if v}
-    return safe(db.search_packages, filters)
-
-@app.route("/api/packages/<int:_id>", methods=["GET"])
-def package_get(_id):
-    return safe(db.get_package, _id)
-
-@app.route("/api/packages", methods=["POST"])
-def package_create():
-    return safe(db.create_package, request.json)
-
-@app.route("/api/packages/<int:_id>", methods=["PUT"])
-def package_update(_id):
-    return safe(db.update_package, _id, request.json)
-
-@app.route("/api/packages/<int:_id>", methods=["DELETE"])
-def package_delete(_id):
-    return safe(db.delete_package, _id)
-
 #---- รีวิว ----
 @app.route("/api/reviews", methods=["GET"])
 def reviews_list():
@@ -211,6 +189,14 @@ def review_update(_id):
 @app.route("/api/reviews/<int:_id>", methods=["DELETE"])
 def review_delete(_id):
     return safe(db.delete_review, _id)
+
+@app.route("/api/reports/recent-reviews")
+def route_report_recent_reviews():
+    return safe(db.report_recent_reviews)
+
+@app.route("/api/reports/average-ratings")
+def route_report_average_ratings():
+    return safe(db.report_average_ratings)
 
 #---- อุปกรณ์ต่อคลาส ----
 @app.route("/api/class_equipment", methods=["GET"])

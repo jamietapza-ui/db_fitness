@@ -474,7 +474,15 @@ def report_summary():
     classes = run_query("SELECT COUNT(*) AS count FROM gym_class")[0]["count"]
     bookings = run_query("SELECT COUNT(*) AS count FROM booking")[0]["count"]
     trainers = run_query("SELECT COUNT(*) AS count FROM trainer")[0]["count"]
-    return {"members": members, "classes": classes, "bookings": bookings, "trainers": trainers}
+    reviews = run_query("SELECT COUNT(*) AS count FROM reviews")[0]["count"]
+    
+    return {
+        "members": members,
+        "classes": classes,
+        "bookings": bookings,
+        "trainers": trainers,
+        "reviews": reviews
+    }
 
 def report_popular_classes():
     """📈 คลาสยอดนิยม (Most Booked)
@@ -525,5 +533,20 @@ def report_class_equipment():
         FROM gym_class gc
         LEFT JOIN class_equipment ce ON gc.class_id = ce.class_id
         LEFT JOIN equipment e ON ce.equip_id = e.equip_id
+    """
+    return run_query(sql)
+
+def report_average_ratings():
+    """⭐ คะแนนเฉลี่ยของแต่ละคลาสและเทรนเนอร์ (Average Ratings)
+    คำใบ้: JOIN reviews→gym_class, reviews→trainer, GROUP BY class, trainer"""
+    sql = """
+        SELECT gc.class_id, 
+               gc.name as class_name, 
+               t.name as trainer_name, 
+               ROUND(AVG(r.rating), 1) AS average_rating
+        FROM reviews r
+        LEFT JOIN gym_class gc ON r.class_id = gc.class_id
+        LEFT JOIN trainer t ON r.trainer_id = t.trainer_id
+        GROUP BY gc.class_id, gc.name, t.trainer_id, t.name
     """
     return run_query(sql)

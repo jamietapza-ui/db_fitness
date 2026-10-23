@@ -17,6 +17,7 @@
       <div class="metric"><div class="metric-num" id="m_cls">—</div><div class="metric-label">คลาส</div></div>
       <div class="metric"><div class="metric-num" id="m_trn">—</div><div class="metric-label">เทรนเนอร์</div></div>
       <div class="metric"><div class="metric-num" id="m_bok">—</div><div class="metric-label">การจอง</div></div>
+      <div class="metric"><div class="metric-num" id="m_rev">—</div><div class="metric-label">รีวิว</div></div>
     </section>
     <section class="card">
       <h3>📈 คลาสยอดนิยม (Most Booked)</h3>
@@ -32,6 +33,11 @@
       <h3>🧰 อุปกรณ์ที่ใช้ในแต่ละคลาส (Join 3 Tables)</h3>
       <div id="equipStatus" class="status"></div>
       <div class="table-wrap"><table id="equipTable"><thead></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card">
+      <h3>⭐ คะแนนเฉลี่ย (Average Ratings)</h3>
+      <div id="reviewsStatus" class="status"></div>
+      <div class="table-wrap"><table id="reviewsTable"><thead></thead><tbody></tbody></table></div>
     </section>
   </main>
   <script src="{{ url_for('static', filename='report.js') }}"></script>

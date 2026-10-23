@@ -1,4 +1,4 @@
--- Active: 1790434080501@@127.0.0.1@3306@project69
+-- Active: 1790433592999@@127.0.0.1@3306@project69
 -- ============================================================
 --  schema.sql — ระบบฟิตเนส (นิสิตออกแบบและเขียนเอง)
 --  กติกา: การจอง = M:N (member × gym_class), อุปกรณ์ต่อคลาส = M:N (gym_class × equipment),
@@ -103,18 +103,18 @@ INSERT INTO trainer (name, specialty, phone) VALUES
 ('Coach Kate',   'Stretching',      '0901212121');
  
 INSERT INTO equipment (name, zone, quantity) VALUES
-('Yoga Mat',        'Studio',      40),
+('Yoga Mat',        'Studio',      60),
 ('Dumbbell Set',    'Weight Zone', 20),
 ('Barbell',         'Weight Zone', 10),
 ('Treadmill',       'Cardio Zone', 12),
-('Boxing Gloves',   'Boxing Zone', 15),
-('Punching Bag',    'Boxing Zone', 6),
+('Boxing Gloves',   'Boxing Zone', 30),
+('Punching Bag',    'Boxing Zone', 10),
 ('Pilates Ball',    'Studio',      20),
-('Spinning Bike',   'Cardio Zone', 15),
+('Spinning Bike',   'Cardio Zone', 25),
 ('Kettlebell',      'Weight Zone', 16),
 ('Jump Rope',       'Cardio Zone', 25),
-('Resistance Band', 'Studio',      30),
-('Foam Roller',     'Studio',      20);
+('Resistance Band', 'Studio',      40),
+('Foam Roller',     'Studio',      25);
  
 INSERT INTO gym_class (trainer_id, name, room, capacity, start_date, end_date) VALUES
 (1,  'Morning Yoga',        'Room A', 20, '2025-06-01 07:00:00', '2025-06-01 08:00:00'),
@@ -162,9 +162,9 @@ INSERT INTO class_equipment (class_id, equip_id, quantity) VALUES
 (7,  11, 15),
 (8,  9,  10),
 (8,  10, 15),
-(9,  8,  15),
+(9,  8,  20),
 (10, 11, 20),
-(11, 5,  10),
+(11, 5,  12),
 (11, 6,  4),
 (12, 12, 20);
  
