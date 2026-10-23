@@ -24,25 +24,14 @@ const ENTITIES = {
         ]
       },
       {
-        "key": "type",
-        "label": "ระดับ",
+        "key": "package_type",
+        "label": "แพ็คเกจ",
         "type": "select",
         "options": [
-          { "value": "", "label": "ทั้งหมด" },
-          { "value": "basic", "label": "Basic" },
-          { "value": "premium", "label": "Premium" },
-          { "value": "vip", "label": "VIP" }
-        ]
-      },
-      {
-        "key": "pack_name",
-        "label": "ระยะเวลา",
-        "type": "select",
-        "options": [
-          { "value": "", "label": "ทั้งหมด" },
-          { "value": "รายวัน", "label": "รายวัน" },
-          { "value": "รายเดือน", "label": "รายเดือน" },
-          { "value": "รายปี", "label": "รายปี" }
+          "",
+          "basic",
+          "premium",
+          "vip"
         ]
       }
     ],
@@ -77,23 +66,13 @@ const ENTITIES = {
         "type": "date"
       },
       {
-        "key": "type",
-        "label": "ระดับแพ็กเกจ",
+        "key": "package_type",
+        "label": "แพ็คเกจ",
         "type": "select",
         "options": [
-          { "value": "basic", "label": "Basic" },
-          { "value": "premium", "label": "Premium" },
-          { "value": "vip", "label": "VIP" }
-        ]
-      },
-      {
-        "key": "pack_name",
-        "label": "ระยะเวลาที่สมัคร",
-        "type": "select",
-        "options": [
-          { "value": "รายวัน", "label": "รายวัน" },
-          { "value": "รายเดือน", "label": "รายเดือน" },
-          { "value": "รายปี", "label": "รายปี" }
+          "basic",
+          "premium",
+          "vip"
         ]
       }
     ]
@@ -237,62 +216,6 @@ const ENTITIES = {
       { "key": "quantity", "label": "จำนวน", "type": "number" }
     ]
   },
-  "packages": {
-    "label": "แพ็กเกจ",
-    "api": "/api/packages",
-    "idKey": "package_id",
-    "search": [
-      {
-        "key": "type",
-        "label": "แพ็กเกจ",
-        "type": "select",
-        "options": [
-          "",
-          "premium",
-          "basic",
-          "VIP"
-        ]
-      },
-      {
-        "key": "pack_name",
-        "label": "ระยะเวลา",
-        "type": "select",
-        "options": [
-          "",
-          "รายวัน",
-          "รายเดือน",
-          "รายปี"
-        ]
-      }
-    ],
-    "form": [
-      {
-        "key": "pack_name",
-        "label": "แพ็กเกจ",
-        "type": "select",
-        "options" : [
-          "รายวัน",
-          "รายเดือน",
-          "รายปี"
-        ]
-      },
-      {
-        "key": "type",
-        "label": "ระดับ",
-        "type": "select",
-        "options": [
-          "premium",
-          "basic",
-          "VIP"
-        ]
-      },
-      {
-        "key": "price",
-        "label": "ราคา",
-        "type": "text",
-      },
-    ]
-  },
   "reviews": {
     "label": "รีวิว",
     "api": "/api/reviews",
@@ -305,7 +228,14 @@ const ENTITIES = {
     "form": [
       { "key": "class_id", "label": "ชื่อคลาส", "type": "select", "optionsFrom": "classes" },
       { "key": "member_id", "label": "ชื่อสมาชิก", "type": "select", "optionsFrom": "members" },
-      { "key": "TEXT_reviews", "label": "รีวิว", "type": "text" }
+      { 
+        "key": "rating",
+         "label": "คะแนน", 
+         "type": "select",
+          "options": 
+          ["⭐⭐⭐⭐⭐5", "⭐⭐⭐⭐4", "⭐⭐⭐3", "⭐⭐2", "⭐1"] 
+      },
+      { "key": "comment", "label": "รีวิว", "type": "text" }
     ]
   },
   "class_equipment": {

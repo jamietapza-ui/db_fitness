@@ -1,15 +1,9 @@
--- Active: 1790433592999@@127.0.0.1@3306
+-- Active: 1790434080501@@127.0.0.1@3306@project69
 -- ============================================================
 --  schema.sql — ระบบฟิตเนส (นิสิตออกแบบและเขียนเอง)
 --  กติกา: การจอง = M:N (member × gym_class), อุปกรณ์ต่อคลาส = M:N (gym_class × equipment),
 --         แต่ละคลาสมีเทรนเนอร์ (1:M จาก trainer)
 -- ============================================================
-CREATE TABLE package(
-    package_id INT AUTO_INCREMENT PRIMARY KEY,
-    pack_name  VARCHAR(100) NOT NULL,
-    type       VARCHAR(50)  NOT NULL,
-    price      INT NOT NULL
-);
 
 CREATE TABLE member (
     member_id     INT AUTO_INCREMENT PRIMARY KEY,
@@ -18,8 +12,7 @@ CREATE TABLE member (
     phone         VARCHAR(15) NOT NULL,
     age           INT NOT NULL,
     join_date     DATE NOT NULL,
-    package_id    INT NOT NULL,
-    FOREIGN KEY (package_id) REFERENCES package(package_id)
+    package_type  VARCHAR(20) NOT NULL CHECK (package_type IN ('basic','premium','vip'))
 );
 
 
@@ -69,40 +62,32 @@ CREATE TABLE class_equipment (    -- M:N: gym_class × equipment
 
 CREATE TABLE reviews(
     review_id    INT AUTO_INCREMENT PRIMARY KEY,
-    class_id INT NOT NULL,
-    trainer_id INT NOT NULL,
-    member_id INT NOT NULL,
-    TEXT_reviews VARCHAR(200) NOT NULL,
+    class_id    INT NOT NULL,
+    trainer_id  INT NOT NULL,
+    member_id   INT NOT NULL,
+    rating       TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment VARCHAR(200) NOT NULL,
     Foreign Key (class_id) REFERENCES gym_class(class_id),
+    FOREIGN KEY (trainer_id) REFERENCES trainer(trainer_id),
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );
 
-INSERT INTO package (pack_name, type, price) VALUES
-('รายวัน',   'basic',   50),
-('รายวัน',   'premium', 80),
-('รายวัน',   'vip',     120),
-('รายเดือน', 'basic',   790),
-('รายเดือน', 'premium', 1290),
-('รายเดือน', 'vip',     1990),
-('รายปี',    'basic',   7900),
-('รายปี',    'premium', 12900),
-('รายปี',    'vip',     19900);
 
-INSERT INTO member (name, gender, phone, age, join_date, package_id) VALUES
-('Somchai Jaidee',       'M', '0811111111', '16', '2025-01-10', 4),
-('Somying Raksuk',       'F', '0822222222', '32', '2025-02-05', 5),
-('Thanakorn Mankhong',   'M', '0833333333', '14', '2025-03-01', 9),
-('Pimchanok Srisuk',     'F', '0844444444', '22', '2025-03-12', 1),
-('Weerapong Saengthong', 'M', '0855555555', '15', '2025-04-02', 6),
-('Kanokwan Sukjai',      'F', '0866666666', '41', '2025-04-20', 8),
-('Nattapon Kengkaj',     'M', '0877777777', '19', '2025-05-05', 2),
-('Paweena Jaingam',      'F', '0888888888', '23', '2025-05-15', 7),
-('Anucha Boonmee',       'M', '0899990001', '25', '2025-05-20', 5),
-('Siriporn Wongsa',      'F', '0899990002', '25', '2025-05-25', 4),
-('Kittisak Thongdee',    'M', '0899990003', '21', '2025-06-01', 6),
-('Napatsorn Chaiyo',     'F', '0899990004', '18', '2025-06-05', 2),
-('Preecha Suksan',       'M', '0899990005', '19', '2025-06-10', 9),
-('Jirapat Meesuk',       'F', '0899990006', '35', '2025-06-15', 7);
+INSERT INTO member (name, gender, phone, age, join_date, package_type) VALUES
+('Somchai Jaidee',       'M', '0811111111', '16', '2025-01-10', 'basic'),
+('Somying Raksuk',       'F', '0822222222', '32', '2025-02-05', 'premium'),
+('Thanakorn Mankhong',   'M', '0833333333', '14', '2025-03-01', 'premium'),
+('Pimchanok Srisuk',     'F', '0844444444', '22', '2025-03-12', 'vip'),
+('Weerapong Saengthong', 'M', '0855555555', '15', '2025-04-02', 'vip'),
+('Kanokwan Sukjai',      'F', '0866666666', '41', '2025-04-20', 'basic'),
+('Nattapon Kengkaj',     'M', '0877777777', '19', '2025-05-05', 'premium'),
+('Paweena Jaingam',      'F', '0888888888', '23', '2025-05-15', 'premium'),
+('Anucha Boonmee',       'M', '0899990001', '25', '2025-05-20', 'vip'),
+('Siriporn Wongsa',      'F', '0899990002', '25', '2025-05-25', 'premium'),
+('Kittisak Thongdee',    'M', '0899990003', '21', '2025-06-01', 'basic'),
+('Napatsorn Chaiyo',     'F', '0899990004', '18', '2025-06-05', 'basic'),
+('Preecha Suksan',       'M', '0899990005', '19', '2025-06-10', 'basic'),
+('Jirapat Meesuk',       'F', '0899990006', '35', '2025-06-15', 'basic');
  
 INSERT INTO trainer (name, specialty, phone) VALUES
 ('Coach Alex',   'Yoga',            '0901111111'),
@@ -183,20 +168,19 @@ INSERT INTO class_equipment (class_id, equip_id, quantity) VALUES
 (11, 6,  4),
 (12, 12, 20);
  
-INSERT INTO reviews (class_id, trainer_id, member_id, TEXT_reviews) VALUES
-(1,  1,  1,  'คลาสโยคะผ่อนคลายมาก ครูสอนดี'),
-(1,  1,  2,  'บรรยากาศดี เหมาะสำหรับมือใหม่'),
-(2,  2,  3,  'ได้เทคนิคยกน้ำหนักที่ถูกต้อง'),
-(4,  4,  5,  'สนุก เหนื่อยแต่คุ้ม'),
-(5,  5,  6,  'ช่วยให้แกนกลางลำตัวแข็งแรงขึ้น'),
-(6,  1,  8,  'ชอบคลาสเย็น ผ่อนคลายหลังเลิกงาน'),
-(7,  6,  9,  'Zumba สนุกมาก เผาผลาญได้เยอะ'),
-(8,  7,  11, 'หนักแต่ท้าทาย โค้ชดูแลดี'),
-(9,  8,  3,  'จักรยานสนุก เพลงมันส์'),
-(10, 9,  13, 'ท่าเต้นไม่ยาก เหมาะกับมือใหม่'),
-(12, 11, 2,  'ยืดเหยียดแล้วสบายตัวมาก'),
-(2,  2,  1,  'โค้ชอธิบายท่าชัดเจน ได้ประโยชน์');
-DROP TABLE if exists package
+INSERT INTO reviews (class_id, trainer_id, member_id, rating, comment) VALUES
+(1,  1,  1,  5, 'คลาสโยคะผ่อนคลายมาก ครูสอนดี'),
+(1,  1,  2,  4, 'บรรยากาศดี เหมาะสำหรับมือใหม่'),
+(2,  2,  3,  5, 'ได้เทคนิคยกน้ำหนักที่ถูกต้อง'),
+(4,  4,  5,  4, 'สนุก เหนื่อยแต่คุ้ม'),
+(5,  5,  6,  5, 'ช่วยให้แกนกลางลำตัวแข็งแรงขึ้น'),
+(6,  1,  8,  4, 'ชอบคลาสเย็น ผ่อนคลายหลังเลิกงาน'),
+(7,  6,  9,  5, 'Zumba สนุกมาก เผาผลาญได้เยอะ'),
+(8,  7,  11, 4, 'หนักแต่ท้าทาย โค้ชดูแลดี'),
+(9,  8,  3,  5, 'จักรยานสนุก เพลงมันส์'),
+(10, 9,  13, 4, 'ท่าเต้นไม่ยาก เหมาะกับมือใหม่'),
+(12, 11, 2,  5, 'ยืดเหยียดแล้วสบายตัวมาก'),
+(2,  2,  1,  4, 'โค้ชอธิบายท่าชัดเจน ได้ประโยชน์');
 
 drop table if exists member
 
