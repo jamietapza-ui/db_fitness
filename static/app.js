@@ -33,6 +33,17 @@ const ENTITIES = {
           { "value": "premium", "label": "Premium" },
           { "value": "vip", "label": "VIP" }
         ]
+      },
+      {
+        "key": "pack_name",
+        "label": "ระยะเวลา",
+        "type": "select",
+        "options": [
+          { "value": "", "label": "ทั้งหมด" },
+          { "value": "รายวัน", "label": "รายวัน" },
+          { "value": "รายเดือน", "label": "รายเดือน" },
+          { "value": "รายปี", "label": "รายปี" }
+        ]
       }
     ],
     "form": [
@@ -148,52 +159,17 @@ const ENTITIES = {
     "api": "/api/bookings",
     "idKey": "booking_id",
     "search": [
-      {
-        "key": "member_name",
-        "label": "ชื่อสมาชิก",
-        "type": "text"
-      },
-      {
-        "key": "class_name",
-        "label": "ชื่อคลาส",
-        "type": "text"
-      },
-      {
-        "key": "status",
-        "label": "สถานะ",
-        "type": "select",
-        "options": [
-          "",
-          "Booked",
-          "cancelled"
-        ]
-      }
+      { "key": "member_name", "label": "ชื่อสมาชิก", "type": "text" },
+      { "key": "class_name", "label": "ชื่อคลาส", "type": "text" },
+      { "key": "status", "label": "สถานะ", "type": "select",
+        "options": ["", "Booked", "cancelled"] }
     ],
     "form": [
-      {
-        "key": "member_name",
-        "label": "ชื่อสมาชิก",
-        "type": "text"
-      },
-      {
-        "key": "class_name",
-        "label": "ชื่อคลาส",
-        "type": "text"
-      },
-      {
-        "key": "book_date",
-        "label": "วันที่จอง",
-        "type": "date"
-      },
-      {
-        "key": "status",
-        "label": "สถานะ",
-        "type": "select",
-        "options": [
-          "Booked",
-          "cancelled"
-        ]
-      }
+      { "key": "member_id", "label": "ชื่อสมาชิก", "type": "select", "optionsFrom": "members" },
+      { "key": "class_id", "label": "ชื่อคลาส", "type": "select", "optionsFrom": "classes" },
+      { "key": "book_date", "label": "วันที่จอง", "type": "date" },
+      { "key": "status", "label": "สถานะ", "type": "select",
+        "options": ["Booked", "cancelled"] }
     ]
   },
   "trainers": {
@@ -251,35 +227,14 @@ const ENTITIES = {
   "equipment": {
     "label": "อุปกรณ์",
     "api": "/api/equipment",
-    "idKey": "equipment_id",
+    "idKey": "equip_id",
     "search": [
-      {
-        "key": "name",
-        "label": "ชื่ออุปกรณ์",
-        "type": "text"
-      }
+      { "key": "name", "label": "ชื่ออุปกรณ์", "type": "text" }
     ],
     "form": [
-      {
-        "key": "name",
-        "label": "ชื่ออุปกรณ์",
-        "type": "text"
-      },
-      {
-        "key": "zone",
-        "label": "โซน",
-        "type": "text"
-      },
-      {
-        "key": "status",
-        "label": "สถานะ",
-        "type": "select",
-        "options": [
-          "Available",
-          "Maintenance",
-          "Out of Order"
-        ]
-      }
+      { "key": "name", "label": "ชื่ออุปกรณ์", "type": "text" },
+      { "key": "zone", "label": "โซน", "type": "text" },
+      { "key": "quantity", "label": "จำนวน", "type": "number" }
     ]
   },
   "packages": {
@@ -296,6 +251,17 @@ const ENTITIES = {
           "premium",
           "basic",
           "VIP"
+        ]
+      },
+      {
+        "key": "pack_name",
+        "label": "ระยะเวลา",
+        "type": "select",
+        "options": [
+          "",
+          "รายวัน",
+          "รายเดือน",
+          "รายปี"
         ]
       }
     ],
@@ -332,49 +298,28 @@ const ENTITIES = {
     "api": "/api/reviews",
     "idKey": "review_id",
     "search": [
-      {
-        "key": "class_name",
-        "label": "ชื่อคลาส",
-        "type": "select",
-        "optionsFrom": "classes"
-      },
-      {
-        "key": "name",
-        "label": "ชื่อผู้ใช้",
-        "type": "select",
-        "optionsFrom": "members"
-      },
-      {
-        "key": "trainer_name",
-        "label": "ชื่อเทรนเนอร์",
-        "type": "select",
-        "optionsFrom": "trainers"
-      }
+      { "key": "class_id", "label": "ชื่อคลาส", "type": "select", "optionsFrom": "classes" },
+      { "key": "member_id", "label": "ชื่อสมาชิก", "type": "select", "optionsFrom": "members" },
+      { "key": "trainer_id", "label": "ชื่อเทรนเนอร์", "type": "select", "optionsFrom": "trainers" }
     ],
     "form": [
-      {
-        "key": "class_name",
-        "label": "ชื่อคลาส",
-        "type": "select",
-        "optionsFrom": "classes"
-      },
-      {
-        "key": "name",
-        "label": "ชื่อผู้ใช้",
-        "type": "select",
-        "optionsFrom": "members"
-      },
-      {
-        "key": "trainer_id",
-        "label": "ชื่อเทรนเนอร์",
-        "type": "select",
-        "optionsFrom": "trainers"
-      },
-      {
-        "key": "TEXT_reviews",
-        "label": "รีวิว",
-        "type": "text"
-      }
+      { "key": "class_id", "label": "ชื่อคลาส", "type": "select", "optionsFrom": "classes" },
+      { "key": "member_id", "label": "ชื่อสมาชิก", "type": "select", "optionsFrom": "members" },
+      { "key": "TEXT_reviews", "label": "รีวิว", "type": "text" }
+    ]
+  },
+  "class_equipment": {
+    "label": "อุปกรณ์ต่อคลาส",
+    "api": "/api/class_equipment",
+    "idKey": ["class_id", "equip_id"],   // คีย์ผสม → id ใน URL เป็น "class_id/equip_id"
+    "search": [
+      { "key": "class_id", "label": "ชื่อคลาส", "type": "select", "optionsFrom": "classes" },
+      { "key": "equip_id", "label": "ชื่ออุปกรณ์", "type": "select", "optionsFrom": "equipment" }
+    ],
+    "form": [
+      { "key": "class_id", "label": "ชื่อคลาส", "type": "select", "optionsFrom": "classes", "lockOnEdit": true },
+      { "key": "equip_id", "label": "ชื่ออุปกรณ์", "type": "select", "optionsFrom": "equipment", "lockOnEdit": true },
+      { "key": "quantity", "label": "จำนวน", "type": "number" }
     ]
   }
 };
@@ -386,14 +331,17 @@ const optionsCache = {};
 function setStatus(el, msg, cls = "") { el.className = "status " + cls; el.textContent = msg; }
 async function api(url, opts) { const res = await fetch(url, opts); return res.json(); }
 
+const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 function fieldHtml(f, prefix, value = "") {
   let input;
+  // ฟิลด์ที่เป็นส่วนของคีย์ผสม แก้ไขไม่ได้ตอนอยู่ในโหมดแก้ไข
+  const lock = (f.lockOnEdit && prefix === "f_" && editingId) ? " disabled" : "";
   if (f.type === "select") {
     // options: อาจเป็น string ธรรมดา หรือ {value,label} ที่โหลดมาจาก API (f._opts)
     const opts = f._opts || (f.options || []).map(o => typeof o === "object" ? o : { value: o, label: o || "ทั้งหมด" });
-    input = '<select id="' + prefix + f.key + '">' +
-      opts.map(o => '<option value="' + o.value + '"' + (String(o.value) === String(value ?? "") ? " selected" : "") + '>' + o.label + '</option>').join("") + '</select>';
-  } else { input = '<input id="' + prefix + f.key + '" type="' + f.type + '" value="' + (value ?? "") + '">'; }
+    input = '<select id="' + prefix + f.key + '"' + lock + '>' +
+      opts.map(o => '<option value="' + esc(o.value) + '"' + (String(o.value) === String(value ?? "") ? " selected" : "") + '>' + esc(o.label) + '</option>').join("") + '</select>';
+  } else { input = '<input id="' + prefix + f.key + '" type="' + f.type + '" value="' + esc(value) + '"' + lock + '>'; }
   return '<div class="field"><label>' + f.label + '</label>' + input + '</div>';
 }
 // โหลดรายการ option จาก API ให้ field ที่มี optionsFrom (เช่น รายชื่อเทรนเนอร์)
@@ -433,10 +381,11 @@ function renderTable(r) {
   const cols = Object.keys(rows[0]);
   head.innerHTML = cols.map(c => "<th>" + c + "</th>").join("") + "<th>จัดการ</th>";
   body.innerHTML = rows.map(row => {
-    const id = row[ENTITIES[current].idKey];
-    return "<tr>" + cols.map(c => "<td>" + (row[c] ?? "—") + "</td>").join("") +
-      '<td><button class="btn sm" onclick="editRow(' + id + ')">แก้ไข</button> ' +
-      '<button class="btn sm del" onclick="deleteRow(' + id + ')">ลบ</button></td></tr>';
+    const k = ENTITIES[current].idKey;
+    const id = Array.isArray(k) ? k.map(x => row[x]).join("/") : row[k];
+    return "<tr>" + cols.map(c => "<td>" + esc(row[c] ?? "—") + "</td>").join("") +
+      "<td><button class=\"btn sm\" onclick=\"editRow('" + id + "')\">แก้ไข</button> " +
+      "<button class=\"btn sm del\" onclick=\"deleteRow('" + id + "')\">ลบ</button></td></tr>";
   }).join("");
 }
 async function openForm(title, data = {}) {

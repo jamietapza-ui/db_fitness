@@ -132,6 +132,10 @@ def equipment_list():
     filters = {k: v for k, v in request.args.items() if v}
     return safe(db.search_equipment, filters)
 
+@app.route("/api/equipment/options", methods=["GET"])
+def equipment_options():
+    return safe(db.equipment_options)
+
 @app.route("/api/equipment/<int:_id>", methods=["GET"])
 def equipment_get(_id):
     return safe(db.get_equipment, _id)
@@ -207,6 +211,28 @@ def review_update(_id):
 @app.route("/api/reviews/<int:_id>", methods=["DELETE"])
 def review_delete(_id):
     return safe(db.delete_review, _id)
+
+#---- อุปกรณ์ต่อคลาส ----
+@app.route("/api/class_equipment", methods=["GET"])
+def class_equipment_list():
+    filters = {k: v for k, v in request.args.items() if v}
+    return safe(db.search_class_equipment, filters)
+
+@app.route("/api/class_equipment", methods=["POST"])
+def class_equipment_create():
+    return safe(db.create_class_equipment, request.json)
+
+@app.route("/api/class_equipment/<int:class_id>/<int:equip_id>", methods=["GET"])
+def class_equipment_get(class_id, equip_id):
+    return safe(db.get_class_equipment, class_id, equip_id)
+
+@app.route("/api/class_equipment/<int:class_id>/<int:equip_id>", methods=["PUT"])
+def class_equipment_update(class_id, equip_id):
+    return safe(db.update_class_equipment, class_id, equip_id, request.json)
+
+@app.route("/api/class_equipment/<int:class_id>/<int:equip_id>", methods=["DELETE"])
+def class_equipment_delete(class_id, equip_id):
+    return safe(db.delete_class_equipment, class_id, equip_id)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

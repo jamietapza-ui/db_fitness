@@ -113,14 +113,16 @@ def search_classes(filters):
                     c.name,
                     c.room,
                     t.name AS trainer_name,
-                    c.capacity - (SELECT COUNT(*) FROM booking b WHERE b.class_id = c.class_id) AS available_slots,
+                    c.capacity - (SELECT COUNT(*) FROM booking b
+                                  WHERE b.class_id = c.class_id
+                                    AND LOWER(b.status) = 'booked') AS available_slots,
                     DATE_FORMAT(c.start_date, '%d/%m/%Y %H:%i') AS start_date,
                     DATE_FORMAT(c.end_date, '%d/%m/%Y %H:%i') AS end_date
              FROM gym_class c
              LEFT JOIN trainer t ON c.trainer_id = t.trainer_id
              WHERE 1=1"""
     params = []
-    if filters.get("name"):
+    if filters.get("name"): 
         sql += " AND c.name LIKE %s"
         params.append(f"%{filters['name']}%")
     if filters.get("room"):
@@ -149,6 +151,30 @@ def get_class(class_id):
              WHERE c.class_id = %s"""
     rows = run_query(sql, (class_id,))
     return rows[0] if rows else None
+
+def check_can_book(member_id, class_id, booking_id=None):
+    safe_id = booking_id if booking_id is not None else 0
+
+    sql = """SELECT c.name,
+                    c.capacity - (SELECT COUNT(*) FROM booking b
+                                  WHERE b.class_id = c.class_id
+                                    AND LOWER(b.status) = 'booked'
+                                    AND b.booking_id <> %s) AS seats_left
+             FROM gym_class c
+             WHERE c.class_id = %s"""
+    rows = run_query(sql, (safe_id, class_id))
+
+    if not rows:
+        raise ValueError(f"ไม่พบคลาสรหัส {class_id}")
+    if rows[0]["seats_left"] <= 0:
+        raise ValueError(f"คลาส '{rows[0]['name']}' เต็มแล้ว (ว่าง 0 ที่นั่ง)")
+
+    dup = run_query("""SELECT COUNT(*) AS cnt FROM booking
+                       WHERE member_id = %s AND class_id = %s
+                         AND LOWER(status) = 'booked' AND booking_id <> %s""",
+                    (member_id, class_id, safe_id))
+    if dup[0]["cnt"] > 0:
+        raise ValueError("สมาชิกนี้จองคลาสนี้อยู่แล้ว")
 
 
 def create_class(data):
@@ -180,7 +206,7 @@ def search_bookings(filters):
     sql = """SELECT b.booking_id, 
                     m.name AS member_name, 
                     c.name AS class_name, 
-                    b.book_date, 
+                    DATE_FORMAT(b.book_date, '%d/%m/%Y') AS book_date, 
                     b.status 
                     FROM booking b 
                     LEFT JOIN member m ON b.member_id = m.member_id 
@@ -204,7 +230,8 @@ def get_booking(booking_id):
     """ดึง การจอง 1 รายการตาม booking_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
     # TODO: SELECT * FROM booking WHERE booking_id = %s แล้วคืนแถวเดียว
     # _todo("get_booking")
-    sql = """SELECT m.name AS member_name, 
+    sql = """SELECT b.member_id, b.class_id,
+                    m.name AS member_name, 
                     c.name AS class_name ,
                     CAST(b.book_date AS CHAR) AS book_date,
                     b.status
@@ -214,11 +241,12 @@ def get_booking(booking_id):
                     WHERE b.booking_id = %s"""
     return run_query(sql, (booking_id,))[0] if run_query(sql, (booking_id,)) else None
 
-
 def create_booking(data):
     """เพิ่ม การจอง ใหม่ — data มีคีย์: member_id, class_id, book_date, status"""
     # TODO: INSERT INTO booking (...) VALUES (%s, ...)
     # _todo("create_booking")
+    if data["status"].casefold() == "booked":
+        check_can_book(data["member_id"], data["class_id"])
     sql = "INSERT INTO booking (member_id, class_id, book_date, status) VALUES (%s, %s, %s, %s)"
     return run_command(sql, (data["member_id"], data["class_id"], data["book_date"], data["status"]))
 
@@ -227,6 +255,8 @@ def update_booking(booking_id, data):
     """แก้ไข การจอง ตาม booking_id"""
     # TODO: UPDATE booking SET ... WHERE booking_id=%s
     # _todo("update_booking")
+    if data["status"].casefold() == "booked":
+        check_can_book(data["member_id"], data["class_id"], booking_id)
     sql = "UPDATE booking SET member_id=%s, class_id=%s, book_date=%s, status=%s WHERE booking_id=%s"
     return run_command(sql, (data["member_id"], data["class_id"], data["book_date"], data["status"], booking_id))
 
@@ -268,8 +298,8 @@ def get_trainer(trainer_id):
     return run_query(sql, (trainer_id,))[0] if run_query(sql, (trainer_id,)) else None
 
 def create_trainer(data):
-    sql = "INSERT INTO trainer (name, specialty, phone, status) VALUES (%s, %s, %s, %s)"
-    return run_command(sql, (data["name"], data["specialty"], data["phone"], data["status"]))
+    sql = "INSERT INTO trainer (name, specialty, phone) VALUES (%s, %s, %s)"
+    return run_command(sql, (data["name"], data["specialty"], data["phone"]))
 
 def update_trainer(trainer_id, data):
     sql = "UPDATE trainer SET name=%s, specialty=%s, phone=%s WHERE trainer_id=%s"
@@ -281,28 +311,34 @@ def delete_trainer(trainer_id):
 
 # ---------- อุปกรณ์ (equipment) ----------
 def search_equipment(filters):
-    sql = "SELECT * FROM equipment WHERE 1=1"
+    sql = "SELECT equip_id, name, zone, quantity FROM equipment WHERE 1=1"
     params = []
     if filters.get("name"):
         sql += " AND name LIKE %s"
         params.append(f"%{filters['name']}%")
     return run_query(sql, tuple(params))
 
-def get_equipment(equipment_id):
-    sql = "SELECT * FROM equipment WHERE equipment_id = %s"
-    return run_query(sql, (equipment_id,))[0] if run_query(sql, (equipment_id,)) else None
+def equipment_options():
+    """รายชื่ออุปกรณ์สำหรับ dropdown (value = equip_id, label = ชื่อ)"""
+    rows = run_query("SELECT equip_id, name FROM equipment ORDER BY name")
+    return [{"value": r["equip_id"], "label": r["name"]} for r in rows]
+
+def get_equipment(equip_id):
+    sql = "SELECT * FROM equipment WHERE equip_id = %s"
+    rows = run_query(sql, (equip_id,))
+    return rows[0] if rows else None
 
 def create_equipment(data):
-    sql = "INSERT INTO equipment (name, zone, status) VALUES (%s, %s, %s)"
-    return run_command(sql, (data["name"], data["zone"], data["status"]))
+    sql = "INSERT INTO equipment (name, zone, quantity) VALUES (%s, %s, %s)"
+    return run_command(sql, (data["name"], data["zone"], data["quantity"]))
 
-def update_equipment(equipment_id, data):
-    sql = "UPDATE equipment SET name=%s, zone=%s, status=%s WHERE equipment_id=%s"
-    return run_command(sql, (data["name"], data["zone"], data["status"], equipment_id))
+def update_equipment(equip_id, data):
+    sql = "UPDATE equipment SET name=%s, zone=%s, quantity=%s WHERE equip_id=%s"
+    return run_command(sql, (data["name"], data["zone"], data["quantity"], equip_id))
 
-def delete_equipment(equipment_id):
-    sql = "DELETE FROM equipment WHERE equipment_id = %s"
-    return run_command(sql, (equipment_id,))
+def delete_equipment(equip_id):
+    sql = "DELETE FROM equipment WHERE equip_id = %s"
+    return run_command(sql, (equip_id,))
 
 #----- แพ็กเกจ -----
 def search_packages(filters):
@@ -311,6 +347,9 @@ def search_packages(filters):
     if filters.get("type"):
         sql += " AND type LIKE %s"
         params.append(f"%{filters['type']}%")
+    if filters.get("pack_name"):
+        sql += " AND pack_name LIKE %s"
+        params.append(f"%{filters['pack_name']}%")
     return run_query(sql, tuple(params))
 
 def get_package(package_id):
@@ -331,42 +370,96 @@ def delete_package(package_id):
 
 #----- รีวิว -----
 def search_reviews(filters):
-    # _todo("search_reviews")
-    sql = """SELECT r.review_id, 
-                    c.name AS class_name, 
-                    t.name AS trainer_name, 
-                    m.name AS member_name, 
+    sql = """SELECT r.review_id,
+                    c.name AS class_name,
+                    t.name AS trainer_name,
+                    m.name AS member_name,
                     r.TEXT_reviews
-                    FROM reviews r 
-                    JOIN gym_class c ON r.class_id = c.class_id 
-                    JOIN trainer t ON c.trainer_id = t.trainer_id 
-                    JOIN member m ON r.member_id = m.member_id 
-                    WHERE 1=1"""
+             FROM reviews r
+             JOIN gym_class c ON r.class_id = c.class_id
+             JOIN trainer t ON r.trainer_id = t.trainer_id
+             JOIN member m ON r.member_id = m.member_id
+             WHERE 1=1"""
     params = []
-    if filters.get("type"):
-        sql += " AND type LIKE %s"
-        params.append(f"%{filters['type']}%")
+    if filters.get("class_id"):
+        sql += " AND r.class_id = %s"
+        params.append(filters["class_id"])
+    if filters.get("member_id"):
+        sql += " AND r.member_id = %s"
+        params.append(filters["member_id"])
+    if filters.get("trainer_id"):
+        sql += " AND r.trainer_id = %s"
+        params.append(filters["trainer_id"])
+    sql += " ORDER BY r.review_id"
     return run_query(sql, tuple(params))
 
 def get_review(review_id):
-    # _todo("get_review")
-    sql = "SELECT * FROM reviews WHERE review_id = %s"
-    return run_query(sql, (review_id,))[0] if run_query(sql, (review_id,)) else None
+    rows = run_query("SELECT * FROM reviews WHERE review_id = %s", (review_id,))
+    return rows[0] if rows else None
 
 def create_review(data):
-    # _todo("create_review")
-    sql = "INSERT INTO reviews (type, content) VALUES (%s, %s)"
-    return run_command(sql, (data["type"], data["content"]))
+    # เทรนเนอร์ดึงจากคลาสอัตโนมัติ ไม่ต้องเลือกซ้ำ
+    sql = """INSERT INTO reviews (class_id, trainer_id, member_id, TEXT_reviews)
+             VALUES (%s, (SELECT trainer_id FROM gym_class WHERE class_id = %s), %s, %s)"""
+    return run_command(sql, (data["class_id"], data["class_id"],
+                             data["member_id"], data["TEXT_reviews"]))
 
 def update_review(review_id, data):
-    # _todo("update_review")
-    sql = "UPDATE reviews SET type=%s, content=%s WHERE review_id=%s"
-    return run_command(sql, (data["type"], data["content"], review_id))
+    sql = """UPDATE reviews
+             SET class_id=%s,
+                 trainer_id=(SELECT trainer_id FROM gym_class WHERE class_id = %s),
+                 member_id=%s, TEXT_reviews=%s
+             WHERE review_id=%s"""
+    return run_command(sql, (data["class_id"], data["class_id"],
+                             data["member_id"], data["TEXT_reviews"], review_id))
 
 def delete_review(review_id):
-    # _todo("delete_review")
-    sql = "DELETE FROM reviews WHERE review_id = %s"
-    return run_command(sql, (review_id,))
+    return run_command("DELETE FROM reviews WHERE review_id = %s", (review_id,))
+
+#----- อุปกรณ์ต่อคลาส -----
+def search_class_equipment(filters):
+    sql = """SELECT ce.class_id, 
+                    gc.name AS class_name, 
+                    e.name AS equipment_name, 
+                    ce.quantity
+                    FROM class_equipment ce
+                    JOIN gym_class gc ON ce.class_id = gc.class_id
+                    JOIN equipment e ON ce.equip_id = e.equip_id
+                    WHERE 1=1"""
+    params = []
+    if filters.get("class_id"):
+        sql += " AND ce.class_id = %s"
+        params.append(filters["class_id"])
+    if filters.get("equip_id"):
+        sql += " AND ce.equip_id = %s"
+        params.append(filters["equip_id"])
+    sql += " ORDER BY ce.class_id, ce.equip_id"
+    return run_query(sql, tuple(params))
+
+def get_class_equipment(class_id, equip_id):
+    sql = """SELECT ce.class_id, 
+                    gc.name AS class_name, 
+                    ce.equip_id, 
+                    e.name AS equipment_name, 
+                    ce.quantity
+                    FROM class_equipment ce
+                    JOIN gym_class gc ON ce.class_id = gc.class_id
+                    JOIN equipment e ON ce.equip_id = e.equip_id
+                    WHERE ce.class_id = %s AND ce.equip_id = %s"""
+    rows = run_query(sql, (class_id, equip_id))
+    return rows[0] if rows else None
+
+def create_class_equipment(data):
+    sql = "INSERT INTO class_equipment (class_id, equip_id, quantity) VALUES (%s, %s, %s)"
+    return run_command(sql, (data["class_id"], data["equip_id"], data["quantity"]))
+
+def update_class_equipment(class_id, equip_id, data):
+    sql = "UPDATE class_equipment SET quantity=%s WHERE class_id=%s AND equip_id=%s"
+    return run_command(sql, (data["quantity"], class_id, equip_id))
+
+def delete_class_equipment(class_id, equip_id):
+    sql = "DELETE FROM class_equipment WHERE class_id=%s AND equip_id=%s"
+    return run_command(sql, (class_id, equip_id))
 
 # ============================================================
 #  REPORT (รายงาน — ใช้ JOIN + GROUP BY + subquery)
